@@ -3,7 +3,6 @@
 <head>
     <title>Newsletter Generator</title>
     <style>
-        /* Keep existing styles */
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
         .input-group { margin-bottom: 15px; }
         input, select, button { width: 100%; padding: 10px; margin: 5px 0; }
@@ -23,14 +22,16 @@
     </style>
 </head>
 <body>
-    <!-- Keep existing HTML structure -->
     <h1>📰 Newsletter Generator</h1>
+    
     <div class="input-group">
-        <input type="text" id="topic" placeholder="Enter topic (e.g., Digital Marketing)">
+        <input type="text" id="topic" placeholder="Enter topic (e.g., AI Marketing)">
     </div>
+    
     <div class="input-group">
-        <input type="text" id="audience" placeholder="Target audience (e.g., Small businesses)">
+        <input type="text" id="audience" placeholder="Target audience (e.g., Startups)">
     </div>
+    
     <div class="input-group">
         <select id="tone">
             <option value="pro">Professional</option>
@@ -38,11 +39,13 @@
             <option value="friendly">Friendly</option>
         </select>
     </div>
+    
     <button onclick="generateIdeas()" style="background: #4CAF50; color: white;">✨ Generate Ideas</button>
+    
     <div id="ideas-container"></div>
 
     <script>
-        // ================ UPDATED CORS HANDLING ================
+        // ============== YOUR WEBHOOK URLs ==============
         const WEBHOOKS = {
             generate: 'https://n8n-e2tg.onrender.com/webhook-test/input-newsletter',
             select: 'https://n8n-e2tg.onrender.com/webhook-test/select-idea-newsletter'
@@ -56,45 +59,41 @@
             };
 
             try {
+                // Step 1: Get ideas from n8n
                 const response = await fetch(WEBHOOKS.generate, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                // Check if response is JSON
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const text = await response.text();
-                    throw new Error(`Server returned non-JSON response: ${text.slice(0, 100)}`);
-                }
-
+                // Step 2: Handle response format
                 const data = await response.json();
-                console.log('API Response:', data);
-
-                // Handle Split Out node format
+                console.log('n8n Response:', data);
+                
+                // Ensure we always get an array
                 const ideas = Array.isArray(data) ? data : 
-                            data?.output ? [data.output] : 
+                            data?.output ? data.output :
                             data?.data ? data.data : 
                             [data];
 
+                // Step 3: Show buttons
                 showIdeas(ideas);
             } catch (error) {
                 console.error('Error:', error);
-                alert(`Error: ${error.message}\n\nPossible solutions:\n1. Refresh the page\n2. Check n8n workflow\n3. Try different inputs`);
+                alert(`Error: ${error.message}\n\nCheck console for details`);
             }
         }
 
         function showIdeas(ideas) {
-            /* Keep existing showIdeas function */
             const container = document.getElementById('ideas-container');
             container.innerHTML = '<h2>👇 Click your favorite idea:</h2>';
             
-            if (!ideas.length) {
-                container.innerHTML = '<p>No ideas generated. Try different inputs!</p>';
+            if (!ideas || ideas.length === 0) {
+                container.innerHTML = '<p>❌ No ideas generated. Try different inputs!</p>';
                 return;
             }
 
+            // Create buttons for ALL ideas
             ideas.forEach((idea, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'idea-btn';
@@ -104,30 +103,22 @@
                     <small>${idea.description}</small>
                 `;
                 
+                // Handle selection
                 btn.onclick = async () => {
                     try {
                         const response = await fetch(WEBHOOKS.select, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
-                                selected: idea,
-                                inputs: {
-                                    topic: document.getElementById('topic').value,
-                                    audience: document.getElementById('audience').value,
-                                    tone: document.getElementById('tone').value
-                                }
+                                selectedIdea: idea,
+                                allOptions: ideas // Send all ideas for reference
                             })
                         });
                         
-                        const responseText = await response.text();
-                        if (!response.ok) {
-                            throw new Error(`HTTP ${response.status}: ${responseText}`);
-                        }
-                        
-                        alert('🎉 Selection received! Workflow continues...');
+                        alert('✅ Selection saved! Continuing workflow...');
                     } catch (error) {
-                        console.error('Error:', error);
-                        alert('Selection error: ' + error.message);
+                        console.error('Selection Error:', error);
+                        alert('Failed to save selection');
                     }
                 };
                 
