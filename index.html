@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 40px; }
+        input, select, button { margin: 10px; padding: 8px; font-size: 16px; }
+        #response { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>Newsletter Generator</h1>
+    
+    <label>Topic:</label>
+    <input type="text" id="topic" placeholder="Enter a topic"><br>
+
+    <label>Target Audience:</label>
+    <input type="text" id="audience" placeholder="Who is this for?"><br>
+
+    <label>Tone:</label>
+    <select id="tone">
+        <option value="professional">Professional</option>
+        <option value="casual">Casual</option>
+        <option value="engaging">Engaging</option>
+    </select><br>
+
+    <button onclick="sendData()">Create</button>
+
+    <h3>Generated Ideas:</h3>
+    <div id="response"></div>
+
+    <script>
+        async function sendData() {
+            const topic = document.getElementById("topic").value;
+            const audience = document.getElementById("audience").value;
+            const tone = document.getElementById("tone").value;
+
+            if (!topic || !audience) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            const webhookURL = "YOUR_N8N_WEBHOOK_URL"; // Replace with your actual webhook URL
+
+            const response = await fetch(webhookURL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ topic, audience, tone })
+            });
+
+            const data = await response.json();
+            displayIdeas(data);
+        }
+
+        function displayIdeas(data) {
+            let html = "";
+            data.forEach((idea, index) => {
+                html += `<button onclick="selectIdea(${index})">${idea.title}</button><br><small>${idea.description}</small><hr>`;
+            });
+            document.getElementById("response").innerHTML = html;
+        }
+
+        function selectIdea(index) {
+            alert("You selected idea #" + (index + 1) + ". Sending to workflow...");
+            // Here, you can trigger the second webhook for content generation
+        }
+    </script>
+
+</body>
+</html>
