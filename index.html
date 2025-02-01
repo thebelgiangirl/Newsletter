@@ -53,18 +53,27 @@
             };
 
             try {
-                // Step 1: Send to your FIRST webhook (idea generation)
+                // Replace with your FIRST webhook URL
                 const response = await fetch('https://n8n-e2tg.onrender.com/webhook-test/input-newsletter', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                const ideas = await response.json();
+                const responseData = await response.json();
+                console.log('Full response:', responseData); // Debug log
+
+                // Extract ideas array from n8n response
+                const ideas = responseData?.output || responseData?.data || responseData;
+                
+                if (!Array.isArray(ideas)) {
+                    throw new Error('Server returned unexpected format. Expected array of ideas.');
+                }
+
                 showIdeas(ideas);
             } catch (error) {
-                alert('Oops! Something went wrong. Check console for details.');
-                console.error(error);
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
             }
         }
 
@@ -72,27 +81,40 @@
             const container = document.getElementById('ideas-container');
             container.innerHTML = '<h2>👇 Click your favorite idea:</h2>';
             
+            if (!ideas || ideas.length === 0) {
+                container.innerHTML += '<p>No ideas generated. Try different inputs!</p>';
+                return;
+            }
+
             ideas.forEach((idea, index) => {
                 const button = document.createElement('button');
                 button.className = 'idea-btn';
                 button.innerHTML = `
                     <strong>Option ${index + 1}:</strong><br>
-                    ${idea.title}<br>
-                    <small>${idea.description}</small>
+                    ${idea.title || 'Untitled Idea'}<br>
+                    <small>${idea.description || 'No description available'}</small>
                 `;
                 
-                // Step 2: When clicked, send to SECOND webhook (selection)
                 button.onclick = async () => {
                     try {
-                        await fetch('https://YOUR_N8N_SERVER.COM/webhook/selection-endpoint', {
+                        // Replace with your SECOND webhook URL
+                        const response = await fetch('https://n8n-e2tg.onrender.com/webhook-test/select-idea-newsletter', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ selectedTitle: idea.title })
+                            body: JSON.stringify({ 
+                                selectedTitle: idea.title,
+                                fullIdea: idea
+                            })
                         });
-                        alert('✅ Selection sent! Your newsletter is being created...');
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        alert('🎉 Selection received! Continuing workflow...');
                     } catch (error) {
-                        alert('Error sending selection!');
-                        console.error(error);
+                        console.error('Selection error:', error);
+                        alert('Failed to save selection: ' + error.message);
                     }
                 };
                 
