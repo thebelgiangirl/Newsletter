@@ -3,6 +3,7 @@
 <head>
     <title>Newsletter Idea Selector</title>
     <style>
+        /* Keep the same CSS styles as before */
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
         .input-group { margin-bottom: 15px; }
         input, select, button { width: 100%; padding: 10px; margin: 5px 0; }
@@ -24,14 +25,13 @@
 <body>
     <h1>📰 Newsletter Generator</h1>
     
+    <!-- Input fields remain the same -->
     <div class="input-group">
         <input type="text" id="topic" placeholder="Enter topic (e.g., Digital Marketing)">
     </div>
-    
     <div class="input-group">
         <input type="text" id="audience" placeholder="Target audience (e.g., Small businesses)">
     </div>
-    
     <div class="input-group">
         <select id="tone">
             <option value="pro">Professional Tone</option>
@@ -45,9 +45,8 @@
     <div id="ideas-container"></div>
 
     <script>
-        // YOUR SPECIFIC WEBHOOK URLs
-        const GENERATE_WEBHOOK_URL = 'https://n8n-e2tg.onrender.com/webhook-test/input-newsletter';
-        const SELECTION_WEBHOOK_URL = 'https://n8n-e2tg.onrender.com/webhook-test/select-idea-newsletter';
+        const GENERATE_WEBHOOK = 'https://n8n-e2tg.onrender.com/webhook-test/input-newsletter';
+        const SELECTION_WEBHOOK = 'https://n8n-e2tg.onrender.com/webhook-test/select-idea-newsletter';
 
         async function generateIdeas() {
             const payload = {
@@ -57,35 +56,44 @@
             };
 
             try {
-                const response = await fetch(GENERATE_WEBHOOK_URL, {
+                const response = await fetch(GENERATE_WEBHOOK, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
                 const responseData = await response.json();
-                console.log('Debug Response:', responseData);
+                console.log('DEBUG - Raw Response:', responseData);
 
-                // Handle n8n's nested response structure
-                const ideas = responseData?.data?.[0]?.json || responseData;
+                // NEW: Properly handle n8n's nested response format
+                const ideas = extractIdeasFromResponse(responseData);
                 
                 if (!Array.isArray(ideas)) {
-                    throw new Error('Unexpected response format from server');
+                    throw new Error(`Server returned unexpected format. Received: ${JSON.stringify(ideas)}`);
                 }
 
                 showIdeas(ideas);
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error: ' + error.message);
+                alert(error.message);
             }
+        }
+
+        // NEW: Special function to handle n8n's response structure
+        function extractIdeasFromResponse(responseData) {
+            // Try different possible response formats
+            return responseData?.data?.[0]?.json?.output ||  // Common n8n format
+                   responseData?.output ||                   // Direct output
+                   responseData?.data ||                     // Array format
+                   responseData;                             // Fallback
         }
 
         function showIdeas(ideas) {
             const container = document.getElementById('ideas-container');
             container.innerHTML = '<h2>👇 Click your favorite idea:</h2>';
             
-            if (!ideas || ideas.length === 0) {
-                container.innerHTML += '<p>No ideas generated. Try different inputs!</p>';
+            if (!ideas?.length) {
+                container.innerHTML += '<p>No ideas generated. Please try again!</p>';
                 return;
             }
 
@@ -100,12 +108,11 @@
                 
                 button.onclick = async () => {
                     try {
-                        const response = await fetch(SELECTION_WEBHOOK_URL, {
+                        const response = await fetch(SELECTION_WEBHOOK, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ 
-                                selectedTitle: idea.title,
-                                fullIdea: idea,
+                            body: JSON.stringify({
+                                selected: idea,
                                 originalInputs: {
                                     topic: document.getElementById('topic').value,
                                     audience: document.getElementById('audience').value,
@@ -114,17 +121,11 @@
                             })
                         });
 
-                        const result = await response.json();
-                        console.log('Selection Result:', result);
-                        
-                        if (response.ok) {
-                            alert('🎉 Selection received! Workflow continues...');
-                        } else {
-                            throw new Error(result.message || 'Selection failed');
-                        }
+                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                        alert('🎉 Selection received! Continuing workflow...');
                     } catch (error) {
-                        console.error('Selection error:', error);
-                        alert('Error: ' + error.message);
+                        console.error('Selection Error:', error);
+                        alert(`Failed to save selection: ${error.message}`);
                     }
                 };
                 
