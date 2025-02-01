@@ -54,7 +54,7 @@
 
             try {
                 // Step 1: Send to your FIRST webhook (idea generation)
-                const response = await fetch('https://YOUR_N8N_SERVER.COM/webhook/1aa6b4d0-9472-4e72-8389-5756f34716f4', {
+                const response = await fetch('https://n8n-e2tg.onrender.com/webhook-test/input-newsletter', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
