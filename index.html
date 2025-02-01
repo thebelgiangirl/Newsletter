@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Newsletter Idea Selector</title>
+    <title>Newsletter Generator</title>
     <style>
-        /* Keep the same CSS styles as before */
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
         .input-group { margin-bottom: 15px; }
         input, select, button { width: 100%; padding: 10px; margin: 5px 0; }
@@ -25,18 +24,19 @@
 <body>
     <h1>📰 Newsletter Generator</h1>
     
-    <!-- Input fields remain the same -->
     <div class="input-group">
         <input type="text" id="topic" placeholder="Enter topic (e.g., Digital Marketing)">
     </div>
+    
     <div class="input-group">
         <input type="text" id="audience" placeholder="Target audience (e.g., Small businesses)">
     </div>
+    
     <div class="input-group">
         <select id="tone">
-            <option value="pro">Professional Tone</option>
-            <option value="casual">Casual Tone</option>
-            <option value="friendly">Friendly Tone</option>
+            <option value="pro">Professional</option>
+            <option value="casual">Casual</option>
+            <option value="friendly">Friendly</option>
         </select>
     </div>
     
@@ -45,8 +45,12 @@
     <div id="ideas-container"></div>
 
     <script>
-        const GENERATE_WEBHOOK = 'https://n8n-e2tg.onrender.com/webhook-test/input-newsletter';
-        const SELECTION_WEBHOOK = 'https://n8n-e2tg.onrender.com/webhook-test/select-idea-newsletter';
+        // ================ CORS PROXY ================
+        const PROXY = 'https://cors-anywhere.herokuapp.com/';
+        const WEBHOOKS = {
+            generate: PROXY + 'https://n8n-e2tg.onrender.com/webhook-test/input-newsletter',
+            select: PROXY + 'https://n8n-e2tg.onrender.com/webhook-test/select-idea-newsletter'
+        };
 
         async function generateIdeas() {
             const payload = {
@@ -56,80 +60,79 @@
             };
 
             try {
-                const response = await fetch(GENERATE_WEBHOOK, {
+                const response = await fetch(WEBHOOKS.generate, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest' // Bypass CORS
+                    },
                     body: JSON.stringify(payload)
                 });
 
-                const responseData = await response.json();
-                console.log('DEBUG - Raw Response:', responseData);
+                const data = await response.json();
+                console.log('Raw Response:', data);
 
-                // NEW: Properly handle n8n's nested response format
-                const ideas = extractIdeasFromResponse(responseData);
-                
-                if (!Array.isArray(ideas)) {
-                    throw new Error(`Server returned unexpected format. Received: ${JSON.stringify(ideas)}`);
-                }
+                // Handle Split Out node response format
+                const ideas = Array.isArray(data) ? data : 
+                            data.output ? [data.output] : 
+                            data.data ? data.data : 
+                            [data];
 
                 showIdeas(ideas);
             } catch (error) {
                 console.error('Error:', error);
-                alert(error.message);
+                alert(`Error: ${error.message}`);
             }
-        }
-
-        // NEW: Special function to handle n8n's response structure
-        function extractIdeasFromResponse(responseData) {
-            // Try different possible response formats
-            return responseData?.data?.[0]?.json?.output ||  // Common n8n format
-                   responseData?.output ||                   // Direct output
-                   responseData?.data ||                     // Array format
-                   responseData;                             // Fallback
         }
 
         function showIdeas(ideas) {
             const container = document.getElementById('ideas-container');
             container.innerHTML = '<h2>👇 Click your favorite idea:</h2>';
             
-            if (!ideas?.length) {
-                container.innerHTML += '<p>No ideas generated. Please try again!</p>';
+            if (!ideas.length) {
+                container.innerHTML = '<p>No ideas generated. Try different inputs!</p>';
                 return;
             }
 
             ideas.forEach((idea, index) => {
-                const button = document.createElement('button');
-                button.className = 'idea-btn';
-                button.innerHTML = `
+                const btn = document.createElement('button');
+                btn.className = 'idea-btn';
+                btn.innerHTML = `
                     <strong>Option ${index + 1}:</strong><br>
-                    ${idea.title || 'Untitled Idea'}<br>
-                    <small>${idea.description || 'No description available'}</small>
+                    ${idea.title}<br>
+                    <small>${idea.description}</small>
                 `;
                 
-                button.onclick = async () => {
+                btn.onclick = async () => {
                     try {
-                        const response = await fetch(SELECTION_WEBHOOK, {
+                        const response = await fetch(WEBHOOKS.select, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
                             body: JSON.stringify({
                                 selected: idea,
-                                originalInputs: {
+                                inputs: {
                                     topic: document.getElementById('topic').value,
                                     audience: document.getElementById('audience').value,
                                     tone: document.getElementById('tone').value
                                 }
                             })
                         });
-
-                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                        alert('🎉 Selection received! Continuing workflow...');
+                        
+                        if (response.ok) {
+                            alert('🎉 Selection received! Workflow continues...');
+                        } else {
+                            throw new Error('Failed to save selection');
+                        }
                     } catch (error) {
-                        console.error('Selection Error:', error);
-                        alert(`Failed to save selection: ${error.message}`);
+                        console.error('Error:', error);
+                        alert('Selection error: ' + error.message);
                     }
                 };
                 
-                container.appendChild(button);
+                container.appendChild(btn);
             });
         }
     </script>
