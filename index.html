@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Newsletter Generator</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
@@ -64,11 +66,11 @@
                     body: JSON.stringify(payload)
                 });
 
-                // Handle raw response text
+                // Récupérer la réponse brute
                 const rawData = await response.text();
                 console.log('Raw Response:', rawData);
 
-                // Parse JSON carefully
+                // Essayer de parser la réponse en JSON
                 let data;
                 try {
                     data = JSON.parse(rawData);
@@ -76,11 +78,9 @@
                     throw new Error(`Invalid JSON response: ${rawData.slice(0, 100)}...`);
                 }
 
-                // Extract array from different possible formats
-                const ideas = Array.isArray(data) ? data :
-                            data?.output ? JSON.parse(data.output) :
-                            data?.data ? data.data :
-                            [data];
+                // Vérifier la structure et extraire les idées
+                console.log('Parsed Data:', data);
+                const ideas = data[0]?.output || [];
 
                 console.log('Processed Ideas:', ideas);
                 showIdeas(ideas);
