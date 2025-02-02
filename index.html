@@ -21,6 +21,7 @@
             text-align: left;
         }
         .idea-btn:hover { background: #e0f2fe; }
+        .confirmation { color: green; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -45,6 +46,7 @@
     <button onclick="generateIdeas()" style="background: #4CAF50; color: white;">✨ Generate Ideas</button>
     
     <div id="ideas-container"></div>
+    <div id="confirmation-message" class="confirmation"></div>
 
     <script>
         const WEBHOOKS = {
@@ -92,7 +94,7 @@
 
         function showIdeas(ideas) {
             const container = document.getElementById('ideas-container');
-            container.innerHTML = '<h2>👇 Click your favorite idea:</h2>';
+            container.innerHTML = '<h2>👇 Click on your favorite idea:</h2>';
             
             if (!ideas?.length) {
                 container.innerHTML += '<p>No ideas generated. Please try again!</p>';
@@ -108,25 +110,33 @@
                     <small>${idea.description || 'No description available'}</small>
                 `;
                 
-                btn.onclick = async () => {
-                    try {
-                        await fetch(WEBHOOKS.select, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                selected: idea,
-                                allOptions: ideas
-                            })
-                        });
-                        alert('✅ Selection saved! Continuing workflow...');
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('Failed to save selection');
-                    }
-                };
+                btn.onclick = async () => selectIdea(idea, ideas);
                 
                 container.appendChild(btn);
             });
+        }
+
+        async function selectIdea(selectedIdea, allIdeas) {
+            try {
+                const response = await fetch(WEBHOOKS.select, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        selected: selectedIdea,
+                        allOptions: allIdeas
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to send selection.');
+
+                // Confirmation à l'utilisateur
+                document.getElementById('confirmation-message').textContent = `✅ Option selected: "${selectedIdea.title}"`;
+
+                console.log('Selection sent successfully:', selectedIdea);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to save selection');
+            }
         }
     </script>
 </body>
