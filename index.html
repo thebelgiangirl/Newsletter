@@ -53,7 +53,7 @@
     <!-- Email final -->
     <div id="email-container">
         <h3>📩 Final Email:</h3>
-        <p id="email-content"></p>
+        <div id="email-content"></div> <!-- ✅ Changed from <p> to <div> for proper HTML rendering -->
         <button id="copy-btn" onclick="copyEmail()">📋 Copy Email</button>
     </div>
 
@@ -132,16 +132,25 @@
 
                 if (!response.ok) throw new Error('Failed to send selection.');
 
-                const data = await response.json();
-                console.log("Response Data:", data); // Debugging log
+                const rawData = await response.text();
+                console.log("Raw Response:", rawData); // Debugging log
 
-                // ✅ Extract the email content correctly
+                let data;
+                try {
+                    data = JSON.parse(rawData);
+                } catch (error) {
+                    throw new Error(`Invalid JSON response: ${rawData.slice(0, 100)}...`);
+                }
+
+                console.log("Parsed Data:", data);
+
+                // ✅ Extract HTML content correctly
                 let emailContent = "";
                 if (data && Array.isArray(data) && data.length > 0) {
-                    if (data[0].email) {
-                        emailContent = data[0].email; // If email content is inside 'email'
+                    if (data[0].html) {
+                        emailContent = data[0].html; // Use 'html' directly
                     } else if (data[0].output && data[0].output.content) {
-                        emailContent = data[0].output.content; // If email content is inside 'output.content'
+                        emailContent = data[0].output.content; // Fallback if 'html' is missing
                     }
                 }
 
