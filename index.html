@@ -133,16 +133,26 @@
                 if (!response.ok) throw new Error('Failed to send selection.');
 
                 const data = await response.json();
+                console.log("Response Data:", data); // Debugging log
 
-                // ✅ FIXED: Correctly extract email content
-                if (data.length > 0 && data[0].output && data[0].output.content) {
-                    document.getElementById('email-content').innerHTML = data[0].output.content;
+                // ✅ Extract the email content correctly
+                let emailContent = "";
+                if (data && Array.isArray(data) && data.length > 0) {
+                    if (data[0].email) {
+                        emailContent = data[0].email; // If email content is inside 'email'
+                    } else if (data[0].output && data[0].output.content) {
+                        emailContent = data[0].output.content; // If email content is inside 'output.content'
+                    }
+                }
+
+                // ✅ Display the email content properly
+                if (emailContent) {
+                    document.getElementById('email-content').innerHTML = emailContent;
                 } else {
                     document.getElementById('email-content').textContent = "No email content available";
                 }
 
                 document.getElementById('email-container').style.display = 'block';
-
                 document.getElementById('confirmation-message').textContent = `✅ Option selected: "${selectedIdea.title}"`;
 
                 console.log('Selection sent successfully:', selectedIdea);
