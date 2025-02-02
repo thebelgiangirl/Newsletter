@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Newsletter Generator</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
         .input-group { margin-bottom: 15px; }
         input, select, button { width: 100%; padding: 10px; margin: 5px 0; }
-        #ideas-container, #final-email-container { margin-top: 20px; }
+        #ideas-container { margin-top: 20px; }
         .idea-btn {
             display: block;
             width: 100%;
@@ -21,36 +19,17 @@
             text-align: left;
         }
         .idea-btn:hover { background: #e0f2fe; }
-        .confirmation { color: green; font-weight: bold; margin-top: 10px; }
-        .email-box {
-            padding: 15px;
-            border: 2px solid #4CAF50;
-            border-radius: 8px;
-            background: #f9f9f9;
-            white-space: pre-wrap;
-            font-family: monospace;
-        }
-        .copy-btn {
-            margin-top: 10px;
-            padding: 10px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .copy-btn:hover { background: #45a049; }
     </style>
 </head>
 <body>
     <h1>📰 Newsletter Generator</h1>
     
     <div class="input-group">
-        <input type="text" id="topic" placeholder="Enter topic (e.g., FBI Nutrition)">
+        <input type="text" id="topic" placeholder="Topic (e.g., FBI Nutrition)">
     </div>
     
     <div class="input-group">
-        <input type="text" id="audience" placeholder="Target audience (e.g., FBI Agents)">
+        <input type="text" id="audience" placeholder="Audience (e.g., FBI Agents)">
     </div>
     
     <div class="input-group">
@@ -64,16 +43,16 @@
     <button onclick="generateIdeas()" style="background: #4CAF50; color: white;">✨ Generate Ideas</button>
     
     <div id="ideas-container"></div>
-    <div id="confirmation-message" class="confirmation"></div>
-    <div id="final-email-container"></div>
 
     <script>
+        // MAGIC ADDRESSES
         const WEBHOOKS = {
-            generate: 'https://n8n-e2tg.onrender.com/webhook/input-newsletter',
+            generate: 'https://n8n-e2tg.onrender.com/webhook-test/input-newsletter',
             select: 'https://n8n-e2tg.onrender.com/webhook-test/select-idea-newsletter'
         };
 
         async function generateIdeas() {
+            // Collect user inputs
             const payload = {
                 topic: document.getElementById('topic').value,
                 audience: document.getElementById('audience').value,
@@ -81,102 +60,60 @@
             };
 
             try {
+                // Ask n8n for ideas
                 const response = await fetch(WEBHOOKS.generate, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    mode: 'cors', // 👈 MAGIC WORDS TO BYPASS SECURITY
+                    credentials: 'include' // 👈 ANOTHER MAGIC WORD
                 });
 
-                const rawData = await response.text();
-                console.log('Raw Response:', rawData);
-
-                let data;
-                try {
-                    data = JSON.parse(rawData);
-                } catch (error) {
-                    throw new Error(`Invalid JSON response: ${rawData.slice(0, 100)}...`);
-                }
-
-                const ideas = data[0]?.output || [];
-
-                console.log('Processed Ideas:', ideas);
+                // Get ideas list
+                const ideas = await response.json();
+                console.log('Ideas from n8n:', ideas);
+                
+                // Show buttons
                 showIdeas(ideas);
             } catch (error) {
-                console.error('Error:', error);
-                alert(`Error: ${error.message}\n\nCheck console for details`);
+                alert("Oops! Couldn't get ideas. Check console!");
+                console.error(error);
             }
         }
 
         function showIdeas(ideas) {
             const container = document.getElementById('ideas-container');
-            container.innerHTML = '<h2>👇 Click on your favorite idea:</h2>';
+            container.innerHTML = '<h2>👇 Click your favorite:</h2>';
             
-            if (!ideas?.length) {
-                container.innerHTML += '<p>No ideas generated. Please try again!</p>';
-                return;
-            }
-
+            // Create button for each idea
             ideas.forEach((idea, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'idea-btn';
                 btn.innerHTML = `
                     <strong>Option ${index + 1}:</strong><br>
-                    ${idea.title || 'Untitled Idea'}<br>
-                    <small>${idea.description || 'No description available'}</small>
+                    ${idea.title}<br>
+                    <small>${idea.description}</small>
                 `;
                 
-                btn.onclick = async () => selectIdea(idea);
+                // When clicked...
+                btn.onclick = async () => {
+                    try {
+                        // Tell n8n which idea was picked
+                        await fetch(WEBHOOKS.select, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ selected: idea }),
+                            mode: 'cors', // 👈 MAGIC WORDS AGAIN
+                            credentials: 'include' // 👈 AND HERE
+                        });
+                        alert('✅ Got it! Making your newsletter now...');
+                    } catch (error) {
+                        alert("Oops! Couldn't save selection.");
+                        console.error(error);
+                    }
+                };
                 
                 container.appendChild(btn);
-            });
-        }
-
-        async function selectIdea(selectedIdea) {
-            try {
-                const response = await fetch(WEBHOOKS.select, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ selected: selectedIdea })
-                });
-
-                if (!response.ok) throw new Error('Failed to send selection.');
-
-                const rawData = await response.text();
-                let data;
-                try {
-                    data = JSON.parse(rawData);
-                } catch (error) {
-                    throw new Error(`Invalid JSON response: ${rawData.slice(0, 100)}...`);
-                }
-
-                const finalEmail = data?.final_email || "No email content received.";
-                
-                document.getElementById('confirmation-message').textContent = `✅ Option selected: "${selectedIdea.title}"`;
-                showFinalEmail(finalEmail);
-
-                console.log('Final Email:', finalEmail);
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to retrieve the final email');
-            }
-        }
-
-        function showFinalEmail(emailContent) {
-            const container = document.getElementById('final-email-container');
-            container.innerHTML = `
-                <h2>📩 Final Email:</h2>
-                <div class="email-box" id="email-text">${emailContent}</div>
-                <button class="copy-btn" onclick="copyEmail()">📋 Copy Email</button>
-            `;
-        }
-
-        function copyEmail() {
-            const emailText = document.getElementById('email-text').innerText;
-            navigator.clipboard.writeText(emailText).then(() => {
-                alert("📋 Email copied to clipboard!");
-            }).catch(err => {
-                console.error('Failed to copy:', err);
-                alert("❌ Failed to copy email.");
             });
         }
     </script>
