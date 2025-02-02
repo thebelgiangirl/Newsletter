@@ -45,14 +45,14 @@
     <div id="ideas-container"></div>
 
     <script>
-        // MAGIC ADDRESSES
+        // 1. CORS PROXY SOLUTION
         const WEBHOOKS = {
-            generate: 'https://n8n-e2tg.onrender.com/webhook/input-newsletter',
-            select: 'https://n8n-e2tg.onrender.com/webhook/select-idea-newsletter'
+            generate: 'https://corsproxy.io/?https://n8n-e2tg.onrender.com/webhook-test/input-newsletter',
+            select: 'https://corsproxy.io/?https://n8n-e2tg.onrender.com/webhook-test/select-idea-newsletter'
         };
 
+        // 2. GENERATE IDEAS FUNCTION
         async function generateIdeas() {
-            // Collect user inputs
             const payload = {
                 topic: document.getElementById('topic').value,
                 audience: document.getElementById('audience').value,
@@ -60,32 +60,25 @@
             };
 
             try {
-                // Ask n8n for ideas
                 const response = await fetch(WEBHOOKS.generate, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                    mode: 'cors', // 👈 MAGIC WORDS TO BYPASS SECURITY
-                    credentials: 'include' // 👈 ANOTHER MAGIC WORD
+                    body: JSON.stringify(payload)
                 });
 
-                // Get ideas list
                 const ideas = await response.json();
-                console.log('Ideas from n8n:', ideas);
-                
-                // Show buttons
                 showIdeas(ideas);
             } catch (error) {
-                alert("Oops! Couldn't get ideas. Check console!");
+                alert("Oops! Let's try that again.");
                 console.error(error);
             }
         }
 
+        // 3. SHOW IDEAS
         function showIdeas(ideas) {
             const container = document.getElementById('ideas-container');
             container.innerHTML = '<h2>👇 Click your favorite:</h2>';
             
-            // Create button for each idea
             ideas.forEach((idea, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'idea-btn';
@@ -95,20 +88,16 @@
                     <small>${idea.description}</small>
                 `;
                 
-                // When clicked...
                 btn.onclick = async () => {
                     try {
-                        // Tell n8n which idea was picked
                         await fetch(WEBHOOKS.select, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ selected: idea }),
-                            mode: 'cors', // 👈 MAGIC WORDS AGAIN
-                            credentials: 'include' // 👈 AND HERE
+                            body: JSON.stringify({ selected: idea })
                         });
-                        alert('✅ Got it! Making your newsletter now...');
+                        alert('✅ Got it! Creating your newsletter...');
                     } catch (error) {
-                        alert("Oops! Couldn't save selection.");
+                        alert("Oops! Please try selecting again.");
                         console.error(error);
                     }
                 };
