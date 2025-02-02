@@ -134,8 +134,13 @@
 
                 const data = await response.json();
 
-                // Affichage du mail final
-                document.getElementById('email-content').textContent = data.email || "No email content available";
+                // ✅ FIXED: Correctly extract email content
+                if (data.length > 0 && data[0].output && data[0].output.content) {
+                    document.getElementById('email-content').innerHTML = data[0].output.content;
+                } else {
+                    document.getElementById('email-content').textContent = "No email content available";
+                }
+
                 document.getElementById('email-container').style.display = 'block';
 
                 document.getElementById('confirmation-message').textContent = `✅ Option selected: "${selectedIdea.title}"`;
@@ -148,7 +153,7 @@
         }
 
         function copyEmail() {
-            const emailText = document.getElementById('email-content').textContent;
+            const emailText = document.getElementById('email-content').innerText;
             navigator.clipboard.writeText(emailText).then(() => {
                 alert("Email copied to clipboard!");
             }).catch(err => {
