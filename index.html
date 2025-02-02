@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Newsletter Generator</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
@@ -19,17 +21,20 @@
             text-align: left;
         }
         .idea-btn:hover { background: #e0f2fe; }
+        .confirmation { color: green; font-weight: bold; margin-top: 10px; }
+        #email-container { display: none; margin-top: 20px; padding: 10px; border: 1px solid #ddd; background: #f9f9f9; }
+        #copy-btn { background: #007bff; color: white; margin-top: 10px; }
     </style>
 </head>
 <body>
     <h1>📰 Newsletter Generator</h1>
     
     <div class="input-group">
-        <input type="text" id="topic" placeholder="Topic (e.g., FBI Nutrition)">
+        <input type="text" id="topic" placeholder="Enter topic (e.g., FBI Nutrition)">
     </div>
     
     <div class="input-group">
-        <input type="text" id="audience" placeholder="Audience (e.g., FBI Agents)">
+        <input type="text" id="audience" placeholder="Target audience (e.g., FBI Agents)">
     </div>
     
     <div class="input-group">
@@ -43,15 +48,21 @@
     <button onclick="generateIdeas()" style="background: #4CAF50; color: white;">✨ Generate Ideas</button>
     
     <div id="ideas-container"></div>
+    <div id="confirmation-message" class="confirmation"></div>
+
+    <!-- Email final -->
+    <div id="email-container">
+        <h3>📩 Final Email:</h3>
+        <p id="email-content"></p>
+        <button id="copy-btn" onclick="copyEmail()">📋 Copy Email</button>
+    </div>
 
     <script>
-        // 1. CORS PROXY SOLUTION
         const WEBHOOKS = {
-            generate: 'https://corsproxy.io/?https://n8n-e2tg.onrender.com/webhook/input-newsletter',
-            select: 'https://corsproxy.io/?https://n8n-e2tg.onrender.com/webhook/select-idea-newsletter'
+            generate: 'https://n8n-e2tg.onrender.com/webhook/input-newsletter',
+            select: 'https://n8n-e2tg.onrender.com/webhook/select-idea-newsletter'
         };
 
-        // 2. GENERATE IDEAS FUNCTION
         async function generateIdeas() {
             const payload = {
                 topic: document.getElementById('topic').value,
@@ -66,43 +77,82 @@
                     body: JSON.stringify(payload)
                 });
 
-                const ideas = await response.json();
+                const rawData = await response.text();
+                console.log('Raw Response:', rawData);
+
+                let data;
+                try {
+                    data = JSON.parse(rawData);
+                } catch (error) {
+                    throw new Error(`Invalid JSON response: ${rawData.slice(0, 100)}...`);
+                }
+
+                console.log('Parsed Data:', data);
+                const ideas = data[0]?.output || [];
+
+                console.log('Processed Ideas:', ideas);
                 showIdeas(ideas);
             } catch (error) {
-                alert("Oops! Let's try that again.");
-                console.error(error);
+                console.error('Error:', error);
+                alert(`Error: ${error.message}\n\nCheck console for details`);
             }
         }
 
-        // 3. SHOW IDEAS
         function showIdeas(ideas) {
             const container = document.getElementById('ideas-container');
-            container.innerHTML = '<h2>👇 Click your favorite:</h2>';
+            container.innerHTML = '<h2>👇 Click on your favorite idea:</h2>';
             
+            if (!ideas?.length) {
+                container.innerHTML += '<p>No ideas generated. Please try again!</p>';
+                return;
+            }
+
             ideas.forEach((idea, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'idea-btn';
                 btn.innerHTML = `
                     <strong>Option ${index + 1}:</strong><br>
-                    ${idea.title}<br>
-                    <small>${idea.description}</small>
+                    ${idea.title || 'Untitled Idea'}<br>
+                    <small>${idea.description || 'No description available'}</small>
                 `;
                 
-                btn.onclick = async () => {
-                    try {
-                        await fetch(WEBHOOKS.select, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ selected: idea })
-                        });
-                        alert('✅ Got it! Creating your newsletter...');
-                    } catch (error) {
-                        alert("Oops! Please try selecting again.");
-                        console.error(error);
-                    }
-                };
+                btn.onclick = async () => selectIdea(idea);
                 
                 container.appendChild(btn);
+            });
+        }
+
+        async function selectIdea(selectedIdea) {
+            try {
+                const response = await fetch(WEBHOOKS.select, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ selected: selectedIdea })
+                });
+
+                if (!response.ok) throw new Error('Failed to send selection.');
+
+                const data = await response.json();
+
+                // Affichage du mail final
+                document.getElementById('email-content').textContent = data.email || "No email content available";
+                document.getElementById('email-container').style.display = 'block';
+
+                document.getElementById('confirmation-message').textContent = `✅ Option selected: "${selectedIdea.title}"`;
+
+                console.log('Selection sent successfully:', selectedIdea);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to save selection');
+            }
+        }
+
+        function copyEmail() {
+            const emailText = document.getElementById('email-content').textContent;
+            navigator.clipboard.writeText(emailText).then(() => {
+                alert("Email copied to clipboard!");
+            }).catch(err => {
+                console.error("Failed to copy email:", err);
             });
         }
     </script>
