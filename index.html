@@ -8,7 +8,7 @@
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
         .input-group { margin-bottom: 15px; }
         input, select, button { width: 100%; padding: 10px; margin: 5px 0; }
-        #ideas-container { margin-top: 20px; }
+        #ideas-container, #final-email-container { margin-top: 20px; }
         .idea-btn {
             display: block;
             width: 100%;
@@ -22,6 +22,24 @@
         }
         .idea-btn:hover { background: #e0f2fe; }
         .confirmation { color: green; font-weight: bold; margin-top: 10px; }
+        .email-box {
+            padding: 15px;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            background: #f9f9f9;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .copy-btn {
+            margin-top: 10px;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .copy-btn:hover { background: #45a049; }
     </style>
 </head>
 <body>
@@ -47,6 +65,7 @@
     
     <div id="ideas-container"></div>
     <div id="confirmation-message" class="confirmation"></div>
+    <div id="final-email-container"></div>
 
     <script>
         const WEBHOOKS = {
@@ -68,11 +87,9 @@
                     body: JSON.stringify(payload)
                 });
 
-                // Récupérer la réponse brute
                 const rawData = await response.text();
                 console.log('Raw Response:', rawData);
 
-                // Essayer de parser la réponse en JSON
                 let data;
                 try {
                     data = JSON.parse(rawData);
@@ -80,8 +97,6 @@
                     throw new Error(`Invalid JSON response: ${rawData.slice(0, 100)}...`);
                 }
 
-                // Vérifier la structure et extraire les idées
-                console.log('Parsed Data:', data);
                 const ideas = data[0]?.output || [];
 
                 console.log('Processed Ideas:', ideas);
@@ -110,33 +125,59 @@
                     <small>${idea.description || 'No description available'}</small>
                 `;
                 
-                btn.onclick = async () => selectIdea(idea, ideas);
+                btn.onclick = async () => selectIdea(idea);
                 
                 container.appendChild(btn);
             });
         }
 
-        async function selectIdea(selectedIdea, allIdeas) {
+        async function selectIdea(selectedIdea) {
             try {
                 const response = await fetch(WEBHOOKS.select, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        selected: selectedIdea,
-                        allOptions: allIdeas
-                    })
+                    body: JSON.stringify({ selected: selectedIdea })
                 });
 
                 if (!response.ok) throw new Error('Failed to send selection.');
 
-                // Confirmation à l'utilisateur
-                document.getElementById('confirmation-message').textContent = `✅ Option selected: "${selectedIdea.title}"`;
+                const rawData = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(rawData);
+                } catch (error) {
+                    throw new Error(`Invalid JSON response: ${rawData.slice(0, 100)}...`);
+                }
 
-                console.log('Selection sent successfully:', selectedIdea);
+                const finalEmail = data?.final_email || "No email content received.";
+                
+                document.getElementById('confirmation-message').textContent = `✅ Option selected: "${selectedIdea.title}"`;
+                showFinalEmail(finalEmail);
+
+                console.log('Final Email:', finalEmail);
             } catch (error) {
                 console.error('Error:', error);
-                alert('Failed to save selection');
+                alert('Failed to retrieve the final email');
             }
+        }
+
+        function showFinalEmail(emailContent) {
+            const container = document.getElementById('final-email-container');
+            container.innerHTML = `
+                <h2>📩 Final Email:</h2>
+                <div class="email-box" id="email-text">${emailContent}</div>
+                <button class="copy-btn" onclick="copyEmail()">📋 Copy Email</button>
+            `;
+        }
+
+        function copyEmail() {
+            const emailText = document.getElementById('email-text').innerText;
+            navigator.clipboard.writeText(emailText).then(() => {
+                alert("📋 Email copied to clipboard!");
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert("❌ Failed to copy email.");
+            });
         }
     </script>
 </body>
