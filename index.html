@@ -6,39 +6,6 @@
   <title>Newsletter Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* Ajout des styles personnalisés pour l'email */
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      margin: 20px;
-      color: #333;
-    }
-    h2 {
-      font-weight: bold;
-      font-size: 1.25rem;
-      margin-bottom: 10px;
-    }
-    h3 {
-      font-weight: bold;
-      font-size: 1.125rem;
-      margin-top: 20px;
-    }
-    p {
-      font-size: 1rem;
-      margin-bottom: 15px;
-    }
-    .subtitle {
-      font-weight: bold;
-      font-size: 1.125rem;
-      color: #2d3748;
-      margin-bottom: 10px;
-    }
-    .content {
-      font-size: 1rem;
-      color: #4a5568;
-    }
-  </style>
 </head>
 <body>
   <div class="max-w-2xl mx-auto my-10 p-6 bg-white shadow-lg rounded-xl">
@@ -118,7 +85,7 @@
     }
 
     async function selectIdea(selectedIdea) {
-        const tone = document.getElementById('tone').value;  // Récupère la valeur du ton
+        const tone = document.getElementById('tone').value;
 
         try {
             const response = await fetch(WEBHOOKS.select, {
@@ -126,17 +93,15 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     selected: selectedIdea,
-                    tone: tone  // Envoie la valeur de `tone` avec l'idée sélectionnée
+                    tone: tone
                 })
             });
 
             const data = await response.json();
             const emailContent = data.html || "No email content available";
             
-            // Injecter le contenu HTML avec styles
-            document.getElementById('email-content').innerHTML = emailContent;
+            document.getElementById('email-content').innerHTML = emailContent; // Use innerHTML here to render HTML
             document.getElementById('email-container').classList.remove('hidden');
-
         } catch (error) {
             console.error('Error:', error);
             alert('Failed to process selection');
