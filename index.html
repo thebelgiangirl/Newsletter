@@ -128,7 +128,7 @@
 
               const data = await response.json();
               
-              // Now that our webhook returns a simple object with key "html"
+              // Our webhook now returns a simple object with a key "html"
               const emailContent = data.html || "No email content available";
               
               document.getElementById('email-content').innerHTML = emailContent;
