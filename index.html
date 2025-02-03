@@ -1,154 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Newsletter Generator</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
-        .input-group { margin-bottom: 15px; }
-        input, select, button { width: 100%; padding: 10px; margin: 5px 0; }
-        #ideas-container { margin-top: 20px; }
-        .idea-btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            background: #f0f9ff;
-            border: 2px solid #4CAF50;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: left;
-        }
-        .idea-btn:hover { background: #e0f2fe; }
-        .confirmation { color: green; font-weight: bold; margin-top: 10px; }
-        #email-container { display: none; margin-top: 20px; padding: 10px; border: 1px solid #ddd; background: #f9f9f9; }
-        #copy-btn { background: #007bff; color: white; margin-top: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newsletter Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
+    .input-group { margin-bottom: 15px; }
+    input, select, button { width: 100%; padding: 10px; margin: 5px 0; }
+    #ideas-container { margin-top: 20px; }
+    .idea-btn {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      background: #f0f9ff;
+      border: 2px solid #4CAF50;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .idea-btn:hover { background: #e0f2fe; }
+    .confirmation { color: green; font-weight: bold; margin-top: 10px; }
+    #email-container { display: none; margin-top: 20px; padding: 10px; border: 1px solid #ddd; background: #f9f9f9; }
+    #copy-btn { background: #007bff; color: white; margin-top: 10px; }
+  </style>
 </head>
 <body>
-    <h1>📰 Newsletter Generator</h1>
-    
-    <div class="input-group">
-        <input type="text" id="topic" placeholder="Enter topic (e.g., FBI Nutrition)">
-    </div>
-    
-    <div class="input-group">
-        <input type="text" id="audience" placeholder="Target audience (e.g., FBI Agents)">
-    </div>
-    
-    <div class="input-group">
-        <select id="tone">
-            <option value="pro">Professional</option>
-            <option value="casual">Casual</option>
-            <option value="friendly">Friendly</option>
-        </select>
-    </div>
-    
-    <button onclick="generateIdeas()" style="background: #4CAF50; color: white;">✨ Generate Ideas</button>
-    
-    <div id="ideas-container"></div>
-    <div id="confirmation-message" class="confirmation"></div>
+  <h1>📰 Newsletter Generator</h1>
+  
+  <div class="input-group">
+      <input type="text" id="topic" placeholder="Enter topic (e.g., FBI Nutrition)">
+  </div>
+  
+  <div class="input-group">
+      <input type="text" id="audience" placeholder="Target audience (e.g., FBI Agents)">
+  </div>
+  
+  <div class="input-group">
+      <select id="tone">
+          <option value="pro">Professional</option>
+          <option value="casual">Casual</option>
+          <option value="friendly">Friendly</option>
+      </select>
+  </div>
+  
+  <button onclick="generateIdeas()" style="background: #4CAF50; color: white;">✨ Generate Ideas</button>
+  
+  <div id="ideas-container"></div>
+  <div id="confirmation-message" class="confirmation"></div>
 
-    <!-- Email Container -->
-    <div id="email-container">
-        <h3>📩 Final Email:</h3>
-        <div id="email-content"></div>
-        <button id="copy-btn" onclick="copyEmail()">📋 Copy Email</button>
-    </div>
+  <!-- Email Container -->
+  <div id="email-container">
+      <h3>📩 Final Email:</h3>
+      <div id="email-content"></div>
+      <button id="copy-btn" onclick="copyEmail()">📋 Copy Email</button>
+  </div>
 
-    <script>
-        const WEBHOOKS = {
-            generate: 'https://n8n-e2tg.onrender.com/webhook-test/input-newsletter',
-            select: 'https://n8n-e2tg.onrender.com/webhook-test/select-idea-newsletter'
-        };
+  <script>
+      const WEBHOOKS = {
+          generate: 'https://n8n-e2tg.onrender.com/webhook-test/input-newsletter',
+          select: 'https://n8n-e2tg.onrender.com/webhook-test/select-idea-newsletter'
+      };
 
-        // ========================
-        // GENERATE IDEAS FUNCTION
-        // ========================
-        async function generateIdeas() {
-            const payload = {
-                topic: document.getElementById('topic').value,
-                audience: document.getElementById('audience').value,
-                tone: document.getElementById('tone').value
-            };
+      // ========================
+      // GENERATE IDEAS FUNCTION
+      // ========================
+      async function generateIdeas() {
+          const payload = {
+              topic: document.getElementById('topic').value,
+              audience: document.getElementById('audience').value,
+              tone: document.getElementById('tone').value
+          };
 
-            try {
-                const response = await fetch(WEBHOOKS.generate, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+          try {
+              const response = await fetch(WEBHOOKS.generate, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload)
+              });
 
-                const data = await response.json();
-                const ideas = data[0]?.output || [];
-                showIdeas(ideas);
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error generating ideas. Check console for details.');
-            }
-        }
+              const data = await response.json();
+              // Assuming your generate webhook returns an array of ideas
+              const ideas = data[0]?.output || [];
+              showIdeas(ideas);
+          } catch (error) {
+              console.error('Error:', error);
+              alert('Error generating ideas. Check console for details.');
+          }
+      }
 
-        // =================
-        // DISPLAY IDEAS UI
-        // =================
-        function showIdeas(ideas) {
-            const container = document.getElementById('ideas-container');
-            container.innerHTML = '<h2>👇 Click on your favorite idea:</h2>';
-            
-            if (!ideas?.length) {
-                container.innerHTML += '<p>No ideas generated. Please try again!</p>';
-                return;
-            }
+      // =================
+      // DISPLAY IDEAS UI
+      // =================
+      function showIdeas(ideas) {
+          const container = document.getElementById('ideas-container');
+          container.innerHTML = '<h2>👇 Click on your favorite idea:</h2>';
+          
+          if (!ideas?.length) {
+              container.innerHTML += '<p>No ideas generated. Please try again!</p>';
+              return;
+          }
 
-            ideas.forEach((idea, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'idea-btn';
-                btn.innerHTML = `
-                    <strong>Option ${index + 1}:</strong><br>
-                    ${idea.title || 'Untitled Idea'}<br>
-                    <small>${idea.description || 'No description available'}</small>
-                `;
-                btn.onclick = () => selectIdea(idea);
-                container.appendChild(btn);
-            });
-        }
+          ideas.forEach((idea, index) => {
+              const btn = document.createElement('button');
+              btn.className = 'idea-btn';
+              btn.innerHTML = `
+                  <strong>Option ${index + 1}:</strong><br>
+                  ${idea.title || 'Untitled Idea'}<br>
+                  <small>${idea.description || 'No description available'}</small>
+              `;
+              btn.onclick = () => selectIdea(idea);
+              container.appendChild(btn);
+          });
+      }
 
-        // ======================
-        // HANDLE IDEA SELECTION
-        // ======================
-        async function selectIdea(selectedIdea) {
-            try {
-                const response = await fetch(WEBHOOKS.select, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ selected: selectedIdea })
-                });
+      // ======================
+      // HANDLE IDEA SELECTION
+      // ======================
+      async function selectIdea(selectedIdea) {
+          try {
+              const response = await fetch(WEBHOOKS.select, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ selected: selectedIdea })
+              });
 
-                const data = await response.json();
-                
-                // ✅ Directly access HTML content from fixed response structure
-                const emailContent = data[0]?.html || "No email content available";
-                
-                document.getElementById('email-content').innerHTML = emailContent;
-                document.getElementById('email-container').style.display = 'block';
-                document.getElementById('confirmation-message').textContent = `✅ Option selected: "${selectedIdea.title}"`;
+              const data = await response.json();
+              
+              // Now that our webhook returns a simple object with key "html"
+              const emailContent = data.html || "No email content available";
+              
+              document.getElementById('email-content').innerHTML = emailContent;
+              document.getElementById('email-container').style.display = 'block';
+              document.getElementById('confirmation-message').textContent = `✅ Option selected: "${selectedIdea.title}"`;
 
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to process selection');
-            }
-        }
+          } catch (error) {
+              console.error('Error:', error);
+              alert('Failed to process selection');
+          }
+      }
 
-        // ================
-        // COPY FUNCTION
-        // ================
-        function copyEmail() {
-            const emailText = document.getElementById('email-content').innerText;
-            navigator.clipboard.writeText(emailText)
-                .then(() => alert("Email copied to clipboard!"))
-                .catch(err => console.error("Copy failed:", err));
-        }
-    </script>
+      // ================
+      // COPY FUNCTION
+      // ================
+      function copyEmail() {
+          const emailText = document.getElementById('email-content').innerText;
+          navigator.clipboard.writeText(emailText)
+              .then(() => alert("Email copied to clipboard!"))
+              .catch(err => console.error("Copy failed:", err));
+      }
+  </script>
 </body>
 </html>
