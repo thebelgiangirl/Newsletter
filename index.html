@@ -50,10 +50,10 @@
     <div id="ideas-container"></div>
     <div id="confirmation-message" class="confirmation"></div>
 
-    <!-- Email final -->
+    <!-- Email Container -->
     <div id="email-container">
         <h3>📩 Final Email:</h3>
-        <div id="email-content"></div> <!-- ✅ Changed from <p> to <div> for proper HTML rendering -->
+        <div id="email-content"></div>
         <button id="copy-btn" onclick="copyEmail()">📋 Copy Email</button>
     </div>
 
@@ -63,6 +63,9 @@
             select: 'https://n8n-e2tg.onrender.com/webhook-test/select-idea-newsletter'
         };
 
+        // ========================
+        // GENERATE IDEAS FUNCTION
+        // ========================
         async function generateIdeas() {
             const payload = {
                 topic: document.getElementById('topic').value,
@@ -77,27 +80,18 @@
                     body: JSON.stringify(payload)
                 });
 
-                const rawData = await response.text();
-                console.log('Raw Response:', rawData);
-
-                let data;
-                try {
-                    data = JSON.parse(rawData);
-                } catch (error) {
-                    throw new Error(`Invalid JSON response: ${rawData.slice(0, 100)}...`);
-                }
-
-                console.log('Parsed Data:', data);
+                const data = await response.json();
                 const ideas = data[0]?.output || [];
-
-                console.log('Processed Ideas:', ideas);
                 showIdeas(ideas);
             } catch (error) {
                 console.error('Error:', error);
-                alert(`Error: ${error.message}\n\nCheck console for details`);
+                alert('Error generating ideas. Check console for details.');
             }
         }
 
+        // =================
+        // DISPLAY IDEAS UI
+        // =================
         function showIdeas(ideas) {
             const container = document.getElementById('ideas-container');
             container.innerHTML = '<h2>👇 Click on your favorite idea:</h2>';
@@ -115,13 +109,14 @@
                     ${idea.title || 'Untitled Idea'}<br>
                     <small>${idea.description || 'No description available'}</small>
                 `;
-                
-                btn.onclick = async () => selectIdea(idea);
-                
+                btn.onclick = () => selectIdea(idea);
                 container.appendChild(btn);
             });
         }
 
+        // ======================
+        // HANDLE IDEA SELECTION
+        // ======================
         async function selectIdea(selectedIdea) {
             try {
                 const response = await fetch(WEBHOOKS.select, {
@@ -130,54 +125,29 @@
                     body: JSON.stringify({ selected: selectedIdea })
                 });
 
-                if (!response.ok) throw new Error('Failed to send selection.');
-
-                const rawData = await response.text();
-                console.log("Raw Response:", rawData); // Debugging log
-
-                let data;
-                try {
-                    data = JSON.parse(rawData);
-                } catch (error) {
-                    throw new Error(`Invalid JSON response: ${rawData.slice(0, 100)}...`);
-                }
-
-                console.log("Parsed Data:", data);
-
-                // ✅ Extract HTML content correctly
-                let emailContent = "";
-                if (data && Array.isArray(data) && data.length > 0) {
-                    if (data[0].html) {
-                        emailContent = data[0].html; // Use 'html' directly
-                    } else if (data[0].output && data[0].output.content) {
-                        emailContent = data[0].output.content; // Fallback if 'html' is missing
-                    }
-                }
-
-                // ✅ Display the email content properly
-                if (emailContent) {
-                    document.getElementById('email-content').innerHTML = emailContent;
-                } else {
-                    document.getElementById('email-content').textContent = "No email content available";
-                }
-
+                const data = await response.json();
+                
+                // ✅ Directly access HTML content from fixed response structure
+                const emailContent = data[0]?.html || "No email content available";
+                
+                document.getElementById('email-content').innerHTML = emailContent;
                 document.getElementById('email-container').style.display = 'block';
                 document.getElementById('confirmation-message').textContent = `✅ Option selected: "${selectedIdea.title}"`;
 
-                console.log('Selection sent successfully:', selectedIdea);
             } catch (error) {
                 console.error('Error:', error);
-                alert('Failed to save selection');
+                alert('Failed to process selection');
             }
         }
 
+        // ================
+        // COPY FUNCTION
+        // ================
         function copyEmail() {
             const emailText = document.getElementById('email-content').innerText;
-            navigator.clipboard.writeText(emailText).then(() => {
-                alert("Email copied to clipboard!");
-            }).catch(err => {
-                console.error("Failed to copy email:", err);
-            });
+            navigator.clipboard.writeText(emailText)
+                .then(() => alert("Email copied to clipboard!"))
+                .catch(err => console.error("Copy failed:", err));
         }
     </script>
 </body>
