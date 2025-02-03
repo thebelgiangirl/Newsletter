@@ -3,112 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Newsletter Generator</title>
+  <title>AI Newsletter Generator</title>
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-900">
-  <div class="max-w-2xl mx-auto my-10 p-6 bg-white shadow-lg rounded-xl">
-    <h1 class="text-2xl font-bold text-center mb-6">📰 Newsletter Generator</h1>
+<body>
+  <div class="container">
+    <header>
+      <h1>📰 AI Newsletter Generator</h1>
+      <p>Generate high-quality newsletters in seconds!</p>
+    </header>
     
-    <div class="space-y-4">
-      <input type="text" id="topic" class="w-full px-4 py-2 border rounded-lg" placeholder="Enter topic (e.g., FBI Nutrition)">
-      <input type="text" id="audience" class="w-full px-4 py-2 border rounded-lg" placeholder="Target audience (e.g., FBI Agents)">
+    <main>
+      <div class="input-group">
+        <input type="text" id="topic" placeholder="Enter topic (e.g., Tech Trends)">
+        <input type="text" id="audience" placeholder="Target audience (e.g., Developers)">
+        <select id="tone">
+          <option value="pro">Professional</option>
+          <option value="casual">Casual</option>
+          <option value="friendly">Friendly</option>
+        </select>
+        <button id="generate-btn">✨ Generate Ideas</button>
+      </div>
       
-      <select id="tone" class="w-full px-4 py-2 border rounded-lg">
-        <option value="pro">Professional</option>
-        <option value="casual">Casual</option>
-        <option value="friendly">Friendly</option>
-      </select>
+      <div id="ideas-container"></div>
       
-      <button onclick="generateIdeas()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">✨ Generate Ideas</button>
-    </div>
-
-    <div id="ideas-container" class="mt-6"></div>
-    
-    <div id="email-container" class="hidden mt-6 p-4 bg-gray-50 border rounded-lg">
-      <h3 class="text-lg font-semibold">📩 Final Email:</h3>
-      <div id="email-content" class="mt-2 text-sm"></div>
-      <button id="copy-btn" onclick="copyEmail()" class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">📋 Copy Email</button>
-    </div>
+      <div id="email-container" class="hidden">
+        <h3>📩 Your Newsletter:</h3>
+        <div id="email-content"></div>
+        <button id="copy-btn">📋 Copy Email</button>
+      </div>
+    </main>
   </div>
-
-  <script>
-    const WEBHOOKS = {
-        generate: 'https://n8n-e2tg.onrender.com/webhook-test/input-newsletter',
-        select: 'https://n8n-e2tg.onrender.com/webhook-test/select-idea-newsletter'
-    };
-
-    async function generateIdeas() {
-        const payload = {
-            topic: document.getElementById('topic').value,
-            audience: document.getElementById('audience').value,
-            tone: document.getElementById('tone').value
-        };
-
-        try {
-            const response = await fetch(WEBHOOKS.generate, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            const data = await response.json();
-            const ideas = data[0]?.output || [];
-            showIdeas(ideas);
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error generating ideas.');
-        }
-    }
-
-    function showIdeas(ideas) {
-        const container = document.getElementById('ideas-container');
-        container.innerHTML = `<h2 class="text-lg font-semibold">👇 Click on an idea:</h2>`;
-        
-        if (!ideas?.length) {
-            container.innerHTML += `<p class="text-gray-500">No ideas generated. Try again!</p>`;
-            return;
-        }
-
-        ideas.forEach((idea, index) => {
-            const btn = document.createElement('button');
-            btn.className = "block w-full text-left p-4 my-2 border rounded-lg bg-white shadow hover:bg-blue-50 transition";
-            btn.innerHTML = `
-                <strong>Option ${index + 1}:</strong><br>
-                ${idea.title || 'Untitled Idea'}<br>
-                <small class="text-gray-500">${idea.description || 'No description available'}</small>
-            `;
-            btn.onclick = () => selectIdea(idea);
-            container.appendChild(btn);
-        });
-    }
-
-    async function selectIdea(selectedIdea) {
-        try {
-            const response = await fetch(WEBHOOKS.select, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ selected: selectedIdea })
-            });
-
-            const data = await response.json();
-            const emailContent = data.html || "No email content available";
-            
-            document.getElementById('email-content').innerHTML = emailContent;
-            document.getElementById('email-container').classList.remove('hidden');
-
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to process selection');
-        }
-    }
-
-    function copyEmail() {
-        const emailText = document.getElementById('email-content').innerText;
-        navigator.clipboard.writeText(emailText)
-            .then(() => alert("Email copied to clipboard!"))
-            .catch(err => console.error("Copy failed:", err));
-    }
-  </script>
+  
+  <script src="script.js"></script>
 </body>
 </html>
