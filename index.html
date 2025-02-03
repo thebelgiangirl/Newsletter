@@ -85,11 +85,16 @@
     }
 
     async function selectIdea(selectedIdea) {
+        const tone = document.getElementById('tone').value;  // Récupère la valeur du ton
+
         try {
             const response = await fetch(WEBHOOKS.select, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ selected: selectedIdea })
+                body: JSON.stringify({
+                    selected: selectedIdea,
+                    tone: tone  // Envoie la valeur de `tone` avec l'idée sélectionnée
+                })
             });
 
             const data = await response.json();
