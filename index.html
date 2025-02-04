@@ -98,7 +98,7 @@
             });
 
             const data = await response.json();
-            const emailContent = data.html || "No email content available";
+            const emailContent = data.html.replace(/\n/g, ''); // Removes unwanted escape characters document.getElementById('email-content').innerHTML = emailContent;
             
             // Use innerHTML here to render HTML content (correct rendering of HTML)
             document.getElementById('email-content').innerHTML = emailContent;  // This will render HTML, not text
