@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Newsletter Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="max-w-2xl mx-auto my-10 p-6 bg-white shadow-lg rounded-xl">
@@ -53,6 +52,10 @@
                 body: JSON.stringify(payload)
             });
 
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            }
+
             const data = await response.json();
             const ideas = data[0]?.output || [];
             showIdeas(ideas);
@@ -97,16 +100,21 @@
                 })
             });
 
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            }
+
             const data = await response.json();
-            const emailContent = data.html || "No email content available";
+            if (!data.html) {
+                throw new Error("Invalid response from server. No HTML content.");
+            }
 
-            // **Fix: Directly insert raw HTML output without modifications**
-            document.getElementById('email-content').innerHTML = emailContent;
-
+            document.getElementById('email-content').innerHTML = data.html;
             document.getElementById('email-container').classList.remove('hidden');
+
         } catch (error) {
             console.error('Error:', error);
-            alert('Failed to process selection');
+            alert(`Failed to process selection: ${error.message}`);
         }
     }
 
