@@ -98,10 +98,11 @@
             });
 
             const data = await response.json();
-            const emailContent = data.html.replace(/\n/g, ''); // Removes unwanted escape characters document.getElementById('email-content').innerHTML = emailContent;
-            
-            // Use innerHTML here to render HTML content (correct rendering of HTML)
-            document.getElementById('email-content').innerHTML = emailContent;  // This will render HTML, not text
+            const emailContent = data.html || "No email content available";
+
+            // **Fix: Directly insert raw HTML output without modifications**
+            document.getElementById('email-content').innerHTML = emailContent;
+
             document.getElementById('email-container').classList.remove('hidden');
         } catch (error) {
             console.error('Error:', error);
