@@ -1,19 +1,1 @@
-.ideas-transition {
-  transition: all 0.3s ease-in-out;
-  max-height: 1000px;
-  overflow: hidden;
-}
 
-.ideas-hidden {
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-}
-
-#email-container button svg {
-  transition: transform 0.3s ease;
-}
-
-.ideas-hidden + #email-container button svg {
-  transform: rotate(180deg);
-}
