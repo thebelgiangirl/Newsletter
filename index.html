@@ -95,6 +95,7 @@
         const container = document.getElementById('ideas-container');
         container.innerHTML = ideas.length ? '<h2 class="text-lg font-semibold">👇 Click on an idea:</h2>' : '<p class="text-gray-500">No ideas generated. Try again!</p>';
         container.style.maxHeight = '500px';
+        container.style.overflow = 'auto';
         
         ideas.forEach((idea, index) => {
             const btn = document.createElement('button');
@@ -103,14 +104,6 @@
             btn.onclick = () => selectIdea(idea);
             container.appendChild(btn);
         });
-    }
-
-    function toggleIdeas() {
-        const icon = document.querySelector('.rotate-icon');
-        const container = document.getElementById('ideas-container');
-        const isOpen = container.style.maxHeight !== '0px';
-        container.style.maxHeight = isOpen ? '0px' : '500px';
-        icon.classList.toggle('open', !isOpen);
     }
   </script>
 </body>
