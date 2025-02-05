@@ -5,71 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Newsletter Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .custom-shadow { box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); }
-    .rotate-icon { transition: transform 0.3s ease; }
-    .rotate-icon.open { transform: rotate(180deg); }
-  </style>
 </head>
-<body class="bg-gradient-to-r from-blue-50 to-gray-100 min-h-screen flex items-center justify-center">
-  <div class="max-w-3xl w-full mx-4 md:mx-auto my-10 p-8 bg-white custom-shadow rounded-2xl">
-    <h1 class="text-4xl font-extrabold text-center mb-6 text-blue-700">📰 Newsletter Generator</h1>
+<body class="bg-gray-100">
+  <div class="max-w-4xl mx-auto my-10 p-8 bg-white shadow-lg rounded-xl">
+    <h1 class="text-3xl font-bold text-center mb-6">📰 Newsletter Generator</h1>
     
     <div class="space-y-4">
-      <input type="text" id="topic" class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 transition" placeholder="Enter topic (e.g., Customer journey)">
-      <input type="text" id="audience" class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 transition" placeholder="Target audience (e.g., Marketing Agency)">
-      <input type="text" id="cta" class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 transition" placeholder="Call-to-action (e.g., Book a call now)">
+      <input type="text" id="topic" class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Enter topic (e.g., Customer journey)">
+      <input type="text" id="audience" class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Target audience (e.g., Marketing Agency)">
+      <input type="text" id="cta" class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Call-to-action (e.g., Book a call now)">
       
-      <div class="relative">
-        <select id="tone" class="w-full px-4 py-3 border rounded-lg appearance-none focus:ring-2 focus:ring-blue-400 transition bg-white">
-          <option value="pro">Professional</option>
-          <option value="casual">Casual</option>
-          <option value="friendly">Friendly</option>
-        </select>
-        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-600">▼</span>
-      </div>
+      <select id="tone" class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="pro">Professional</option>
+        <option value="casual">Casual</option>
+        <option value="friendly">Friendly</option>
+      </select>
       
-      <button id="generate-btn" onclick="generateIdeas()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition active:scale-95 flex items-center justify-center">
-        <span id="btn-text">✨ Generate Ideas</span>
-        <span id="spinner" class="hidden ml-2 border-2 border-white border-t-transparent rounded-full w-5 h-5 animate-spin"></span>
-      </button>
+      <button id="generate-btn" onclick="generateIdeas()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition active:scale-95">✨ Generate Ideas</button>
     </div>
 
-    <div id="ideas-container" class="mt-6 max-h-0 overflow-hidden transition-all duration-500"></div>
+    <div id="ideas-container" class="mt-6 space-y-2"></div>
     
     <div id="email-container" class="hidden mt-6 p-4 bg-gray-50 border rounded-lg">
-      <h3 class="text-lg font-semibold flex justify-between">📩 Final Email:
-        <button onclick="toggleIdeas()" class="text-blue-600 hover:underline flex items-center">
-          <span>Toggle Ideas</span>
-          <svg class="w-4 h-4 ml-1 rotate-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
-        </button>
-      </h3>
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold">📩 Final Email:</h3>
+        <button onclick="toggleIdeas()" class="text-blue-600 hover:underline">🔽 Show/Hide Ideas</button>
+      </div>
       <div id="email-content" class="mt-2 text-sm"></div>
-      <button id="copy-btn" onclick="copyEmail()" class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">📋 Copy Email</button>
+      <button id="copy-btn" onclick="copyEmail()" class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition">📋 Copy Email</button>
     </div>
   </div>
 
   <script>
     const WEBHOOKS = {
-        generate: 'https://n8n-e2tg.onrender.com/webhook-test/input-newsletter',
-        select: 'https://n8n-e2tg.onrender.com/webhook-test/select-idea-newsletter'
+        generate: 'https://n8n-e2tg.onrender.com/webhook/input-newsletter',
+        select: 'https://n8n-e2tg.onrender.com/webhook/select-idea-newsletter'
     };
 
-    let storedData = {};
+    let storedData = {}; 
 
     async function generateIdeas() {
-        const button = document.getElementById('generate-btn');
-        const btnText = document.getElementById('btn-text');
-        const spinner = document.getElementById('spinner');
-        button.disabled = true;
-        btnText.textContent = "Generating...";
-        spinner.classList.remove('hidden');
-
+        const generateBtn = document.getElementById('generate-btn');
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '⏳ Generating...';
+        
         storedData = {
             topic: document.getElementById('topic').value,
             audience: document.getElementById('audience').value,
             tone: document.getElementById('tone').value,
-            cta: document.getElementById('cta').value
+            cta: document.getElementById('cta').value 
         };
 
         try {
@@ -79,31 +63,78 @@
                 body: JSON.stringify(storedData)
             });
 
-            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            if (!response.ok) throw new Error(`Server error: ${response.status} ${response.statusText}`);
+
             const data = await response.json();
-            showIdeas(data[0]?.output || []);
+            const ideas = data[0]?.output || [];
+            showIdeas(ideas);
         } catch (error) {
+            console.error('Error:', error);
             alert('Error generating ideas.');
         } finally {
-            button.disabled = false;
-            btnText.textContent = "✨ Generate Ideas";
-            spinner.classList.add('hidden');
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = '✨ Generate Ideas';
         }
     }
 
     function showIdeas(ideas) {
         const container = document.getElementById('ideas-container');
-        container.innerHTML = ideas.length ? '<h2 class="text-lg font-semibold">👇 Click on an idea:</h2>' : '<p class="text-gray-500">No ideas generated. Try again!</p>';
-        container.style.maxHeight = '500px';
-        container.style.overflow = 'auto';
+        container.innerHTML = `<h2 class="text-lg font-semibold">👇 Click on an idea:</h2>`;
         
+        if (!ideas?.length) {
+            container.innerHTML += `<p class="text-gray-500">No ideas generated. Try again!</p>`;
+            return;
+        }
+
         ideas.forEach((idea, index) => {
             const btn = document.createElement('button');
             btn.className = "block w-full text-left p-4 my-2 border rounded-lg bg-white shadow hover:bg-blue-50 transition";
-            btn.innerHTML = `<strong>Option ${index + 1}:</strong><br>${idea.title || 'Untitled Idea'}<br><small class="text-gray-500">${idea.description || 'No description available'}</small>`;
+            btn.innerHTML = `
+                <strong>Option ${index + 1}:</strong><br>
+                ${idea.title || 'Untitled Idea'}<br>
+                <small class="text-gray-500">${idea.description || 'No description available'}</small>
+            `;
             btn.onclick = () => selectIdea(idea);
             container.appendChild(btn);
         });
+    }
+
+    async function selectIdea(selectedIdea) {
+        try {
+            const response = await fetch(WEBHOOKS.select, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    selected: selectedIdea,
+                    tone: storedData.tone, 
+                    audience: storedData.audience, 
+                    cta: storedData.cta 
+                })
+            });
+
+            if (!response.ok) throw new Error(`Server error: ${response.status} ${response.statusText}`);
+
+            const data = await response.json();
+            if (!data.html) throw new Error("Invalid response from server. No HTML content.");
+
+            document.getElementById('email-content').innerHTML = data.html;
+            document.getElementById('email-container').classList.remove('hidden');
+        } catch (error) {
+            console.error('Error:', error);
+            alert(`Failed to process selection: ${error.message}`);
+        }
+    }
+
+    function copyEmail() {
+        const emailText = document.getElementById('email-content').innerText;
+        navigator.clipboard.writeText(emailText)
+            .then(() => alert("Email copied to clipboard!"))
+            .catch(err => console.error("Copy failed:", err));
+    }
+
+    function toggleIdeas() {
+        const container = document.getElementById('ideas-container');
+        container.classList.toggle('hidden');
     }
   </script>
 </body>
