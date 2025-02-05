@@ -6,6 +6,39 @@
   <title>Newsletter Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"></script>
+  <style>
+    /* Custom styles to override email content formatting */
+    #email-content {
+      font-family: inherit !important;
+    }
+    #email-content * {
+      max-width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+    #email-content p {
+      margin-bottom: 1rem !important;
+      line-height: 1.6 !important;
+      color: #374151 !important;
+    }
+    #email-content h1, #email-content h2, #email-content h3 {
+      color: #1e1b4b !important;
+      font-weight: 600 !important;
+      margin-top: 1.5rem !important;
+      margin-bottom: 1rem !important;
+    }
+    #email-content ul, #email-content ol {
+      margin-left: 1.5rem !important;
+      margin-bottom: 1rem !important;
+    }
+    #email-content li {
+      margin-bottom: 0.5rem !important;
+    }
+    #email-content a {
+      color: #4f46e5 !important;
+      text-decoration: underline !important;
+    }
+  </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen">
   <div class="max-w-4xl mx-auto my-10 p-8">
@@ -98,7 +131,7 @@
             <span>Copy to Clipboard</span>
           </button>
         </div>
-        <div id="email-content" class="prose max-w-none mt-4 p-6 bg-gray-50 rounded-xl"></div>
+        <div id="email-content" class="mt-4 p-6 bg-gray-50 rounded-xl text-base leading-relaxed"></div>
       </div>
     </div>
   </div>
@@ -207,7 +240,17 @@
                 throw new Error("Invalid response from server. No HTML content.");
             }
 
-            emailContent.innerHTML = data.html;
+            // Process the HTML content to maintain consistent formatting
+            const processedHtml = data.html
+                .replace(/<p>/g, '<p class="mb-4 text-gray-700">')
+                .replace(/<h1>/g, '<h1 class="text-2xl font-bold text-indigo-900 mb-4">')
+                .replace(/<h2>/g, '<h2 class="text-xl font-semibold text-indigo-900 mb-3">')
+                .replace(/<h3>/g, '<h3 class="text-lg font-semibold text-indigo-900 mb-2">')
+                .replace(/<ul>/g, '<ul class="list-disc list-inside mb-4 text-gray-700">')
+                .replace(/<ol>/g, '<ol class="list-decimal list-inside mb-4 text-gray-700">')
+                .replace(/<li>/g, '<li class="mb-2">');
+
+            emailContent.innerHTML = processedHtml;
             
             // Smooth scroll to email content
             emailContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
