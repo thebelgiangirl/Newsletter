@@ -10,10 +10,12 @@ body {
     padding: 2rem;
 }
 
+/* Fixed width container that won't be affected by email content */
 .container {
     width: 100%;
     max-width: 896px;
     margin: auto;
+    min-width: 896px; /* Prevent container from shrinking */
 }
 
 header {
@@ -38,6 +40,7 @@ h1 {
     border-radius: 12px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
+    width: 100%;
 }
 
 .input-group {
@@ -95,6 +98,7 @@ h1 {
     display: grid;
     gap: 1rem;
     margin-bottom: 2rem;
+    width: 100%;
 }
 
 .idea-button {
@@ -105,6 +109,7 @@ h1 {
     cursor: pointer;
     text-align: left;
     transition: 0.2s;
+    width: 100%;
 }
 
 .idea-button:hover {
@@ -117,6 +122,7 @@ h1 {
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
 }
 
 .email-header {
@@ -152,6 +158,25 @@ h1 {
     display: none;
 }
 
+/* Isolate email content styles */
 #email-content {
     line-height: 1.6;
+    width: 100%;
+}
+
+/* Override any email content styles that might affect layout */
+#email-content .email-container {
+    max-width: none !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+#email-content style {
+    display: none; /* Hide style tag that comes with email content */
+}
+
+/* Make email content responsive */
+#email-content * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
