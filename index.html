@@ -3,56 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Newsletter Generator</title>
+    <title>Newsletter Magic ✨</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>✨ Newsletter Generator</h1>
-            <p class="subtitle">Create engaging newsletters in seconds</p>
-        </header>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-magic"></i>
+                <span>Newsletter Magic</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="active"><i class="fas fa-pen-fancy"></i> Create</a>
+                <a href="#"><i class="fas fa-history"></i> History</a>
+                <a href="#"><i class="fas fa-star"></i> Templates</a>
+            </div>
+        </nav>
 
-        <main>
-            <section class="form-container">
-                <div class="input-group">
-                    <label for="topic">Sujet</label>
-                    <input type="text" id="topic" name="topic" required>
-                </div>
+        <main class="main-content">
+            <header class="main-header">
+                <h1>✨ Create Your Newsletter</h1>
+                <p>Transform your ideas into engaging newsletters in seconds</p>
+            </header>
 
-                <div class="input-group">
-                    <label for="audience">Audience cible</label>
-                    <input type="text" id="audience" name="audience" required>
-                </div>
+            <div class="content-grid">
+                <section class="form-section card">
+                    <h2><i class="fas fa-sliders-h"></i> Newsletter Settings</h2>
+                    
+                    <form id="newsletterForm" class="newsletter-form">
+                        <div class="input-group">
+                            <label for="topic">
+                                <i class="fas fa-bookmark"></i> Subject
+                            </label>
+                            <input type="text" id="topic" name="topic" 
+                                   placeholder="Enter your newsletter subject"
+                                   required>
+                        </div>
 
-                <div class="input-group">
-                    <label for="cta">Call-to-Action</label>
-                    <input type="text" id="cta" name="cta" required>
-                </div>
+                        <div class="input-group">
+                            <label for="audience">
+                                <i class="fas fa-users"></i> Target Audience
+                            </label>
+                            <input type="text" id="audience" name="audience" 
+                                   placeholder="Who is your newsletter for?"
+                                   required>
+                        </div>
 
-                <div class="input-group">
-                    <label for="tone">Ton de voix</label>
-                    <select id="tone" name="tone" required>
-                        <option value="professional">Professionnel</option>
-                        <option value="casual">Décontracté</option>
-                        <option value="friendly">Amical</option>
-                    </select>
-                </div>
+                        <div class="input-group">
+                            <label for="cta">
+                                <i class="fas fa-bullhorn"></i> Call-to-Action
+                            </label>
+                            <input type="text" id="cta" name="cta" 
+                                   placeholder="What action should readers take?"
+                                   required>
+                        </div>
 
-                <button id="generateBtn" class="generate-btn">✨ Générer des idées</button>
-            </section>
+                        <div class="input-group">
+                            <label for="tone">
+                                <i class="fas fa-comment-dots"></i> Tone of Voice
+                            </label>
+                            <select id="tone" name="tone" required>
+                                <option value="" disabled selected>Select your tone</option>
+                                <option value="professional">Professional</option>
+                                <option value="casual">Casual</option>
+                                <option value="friendly">Friendly</option>
+                            </select>
+                        </div>
 
-            <section id="ideas-container" class="ideas-container"></section>
+                        <button type="submit" id="generateBtn" class="generate-btn">
+                            <span class="btn-content">
+                                <i class="fas fa-wand-magic-sparkles"></i>
+                                Generate Ideas
+                            </span>
+                        </button>
+                    </form>
+                </section>
 
-            <section id="email-container" class="email-box hidden">
-                <div class="email-header">
-                    <h3>📩 Votre Newsletter</h3>
-                    <button id="copy-btn">📋 Copier</button>
-                </div>
-                <div id="email-content"></div>
-            </section>
+                <section id="ideas-container" class="ideas-section card hidden">
+                    <h2><i class="fas fa-lightbulb"></i> Generated Ideas</h2>
+                    <div class="ideas-grid"></div>
+                </section>
+
+                <section id="email-container" class="preview-section card hidden">
+                    <div class="preview-header">
+                        <h2><i class="fas fa-envelope-open-text"></i> Newsletter Preview</h2>
+                        <button id="copy-btn" class="copy-btn">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="preview-content">
+                        <div id="email-content"></div>
+                    </div>
+                </section>
+            </div>
         </main>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
