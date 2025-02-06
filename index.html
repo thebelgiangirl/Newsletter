@@ -7,70 +7,120 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"></script>
   <style>
-    /* Ensure consistent width */
     .container-width {
       width: 100%;
-      max-width: 896px; /* equivalent to max-w-4xl */
+      max-width: 896px;
       margin-left: auto;
       margin-right: auto;
     }
-    
-    /* Preserve layout stability */
-    #email-container {
-      min-height: 300px;
-      opacity: 1;
-      transition: opacity 0.3s ease-in-out;
+    #email-content {
+      font-family: inherit !important;
+      width: 100% !important;
     }
-
-    /* Prevent layout shifts */
-    .hidden-content {
+    #email-container.hidden {
       display: none;
     }
   </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen">
   <div class="container-width my-10 px-4 sm:px-8">
-    <!-- Header Section -->
-    <div class="text-center mb-12 animate-fade-in">
+    <div class="text-center mb-12">
       <h1 class="text-4xl font-bold text-indigo-900 mb-2">✨ Newsletter Generator</h1>
       <p class="text-gray-600">Create engaging newsletters in seconds</p>
     </div>
     
-    <!-- Main Form Card -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 w-full" id="main-card">
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 w-full">
       <div class="grid gap-6 md:grid-cols-2">
         <div class="space-y-2">
           <label class="block text-sm font-medium text-gray-700">Topic</label>
-          <input type="text" id="topic" class="w-full border rounded-xl p-3" placeholder="e.g., Customer journey">
+          <input type="text" id="topic" class="w-full p-3 border border-gray-200 rounded-xl">
         </div>
         <div class="space-y-2">
           <label class="block text-sm font-medium text-gray-700">Target Audience</label>
-          <input type="text" id="audience" class="w-full border rounded-xl p-3" placeholder="e.g., Marketing Agency">
+          <input type="text" id="audience" class="w-full p-3 border border-gray-200 rounded-xl">
+        </div>
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">Call-to-Action</label>
+          <input type="text" id="cta" class="w-full p-3 border border-gray-200 rounded-xl">
+        </div>
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">Tone of Voice</label>
+          <select id="tone" class="w-full p-3 border border-gray-200 rounded-xl">
+            <option value="pro">Professional</option>
+            <option value="casual">Casual</option>
+            <option value="friendly">Friendly</option>
+          </select>
         </div>
       </div>
-      <button onclick="generateIdeas()" class="w-full mt-8 bg-indigo-600 text-white py-3 rounded-xl">Generate Ideas</button>
+      <button onclick="generateIdeas()" class="w-full mt-8 bg-indigo-600 text-white py-4 px-6 rounded-xl">
+        ✨ Generate Ideas
+      </button>
     </div>
     
-    <!-- Ideas Container -->
-    <div id="ideas-container" class="w-full"></div>
+    <div id="ideas-container" class="space-y-4 w-full"></div>
     
-    <!-- Email Result Container -->
-    <div id="email-container" class="hidden-content w-full">
-      <div class="bg-white rounded-2xl shadow-xl p-8 w-full">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-xl font-semibold text-indigo-900">📩 Your Newsletter</h3>
-          <button id="copy-btn" onclick="copyEmail()" class="bg-green-500 text-white px-4 py-2 rounded-lg">Copy to Clipboard</button>
-        </div>
-        <div id="email-content" class="p-6 bg-gray-50 rounded-xl text-base"></div>
+    <div id="email-container" class="hidden w-full mt-8">
+      <div class="bg-white rounded-2xl shadow-xl p-8">
+        <h3 class="text-xl font-semibold text-indigo-900">📩 Your Newsletter</h3>
+        <div id="email-content" class="mt-4 p-6 bg-gray-50 rounded-xl"></div>
       </div>
     </div>
   </div>
-  
+
   <script>
+    const WEBHOOKS = {
+      generate: 'https://n8n-e2tg.onrender.com/webhook/input-newsletter',
+      select: 'https://n8n-e2tg.onrender.com/webhook/select-idea-newsletter'
+    };
+
     async function generateIdeas() {
-        const emailContainer = document.getElementById('email-container');
-        emailContainer.classList.remove('hidden-content');
-        emailContainer.scrollIntoView({ behavior: 'smooth' });
+      const storedData = {
+        topic: document.getElementById('topic').value,
+        audience: document.getElementById('audience').value,
+        tone: document.getElementById('tone').value,
+        cta: document.getElementById('cta').value
+      };
+      try {
+        const response = await fetch(WEBHOOKS.generate, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(storedData)
+        });
+        const data = await response.json();
+        showIdeas(data[0]?.output || []);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    function showIdeas(ideas) {
+      const container = document.getElementById('ideas-container');
+      container.innerHTML = '';
+      ideas.forEach((idea, index) => {
+        const btn = document.createElement('button');
+        btn.className = "w-full p-6 border border-gray-100 rounded-xl bg-gray-50 hover:bg-indigo-50";
+        btn.innerHTML = `<strong>${index + 1}. ${idea.title}</strong> - ${idea.description}`;
+        btn.onclick = () => selectIdea(idea);
+        container.appendChild(btn);
+      });
+    }
+
+    async function selectIdea(selectedIdea) {
+      document.getElementById('email-container').classList.remove('hidden');
+      const emailContent = document.getElementById('email-content');
+      emailContent.innerHTML = 'Loading...';
+      try {
+        const response = await fetch(WEBHOOKS.select, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ selected: selectedIdea })
+        });
+        const data = await response.json();
+        emailContent.innerHTML = data.html || '<p>Error loading newsletter.</p>';
+      } catch (error) {
+        console.error('Error:', error);
+        emailContent.innerHTML = '<p>Error loading newsletter.</p>';
+      }
     }
   </script>
 </body>
