@@ -1,292 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Newsletter Generator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    /* Core layout styles */
-    body {
-      background: linear-gradient(to bottom right, #EEF2FF, #E0E7FF);
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-    }
-
-    .main-container {
-      width: 100%;
-      max-width: 896px;
-      margin: 0 auto;
-      padding: 2.5rem 2rem;
-    }
-
-    /* Email content styles */
-    #email-content {
-      font-family: inherit !important;
-    }
-
-    #email-content * {
-      max-width: 100% !important;
-    }
-
-    #email-content p {
-      margin-bottom: 1rem !important;
-      line-height: 1.6 !important;
-      color: #374151 !important;
-    }
-
-    #email-content h1,
-    #email-content h2,
-    #email-content h3 {
-      color: #1e1b4b !important;
-      font-weight: 600 !important;
-      margin-top: 1.5rem !important;
-      margin-bottom: 1rem !important;
-    }
-
-    #email-content ul,
-    #email-content ol {
-      margin-bottom: 1rem !important;
-      padding-left: 1.5rem !important;
-    }
-
-    #email-content li {
-      margin-bottom: 0.5rem !important;
-    }
-
-    /* Fix select appearance in Safari */
-    select {
-      -webkit-appearance: none;
-      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-      background-repeat: no-repeat;
-      background-position: right 0.5rem center;
-      background-size: 1.5em 1.5em;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="script.js"></script>
 </head>
-<body>
-  <div class="main-container">
-    <!-- Header -->
-    <div class="text-center mb-12">
-      <h1 class="text-4xl font-bold text-indigo-900 mb-2">✨ Newsletter Generator</h1>
-      <p class="text-gray-600">Create engaging newsletters in seconds</p>
-    </div>
-    
-    <!-- Input Form -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Topic -->
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">Topic</label>
-          <div class="relative">
-            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">📝</span>
-            <input type="text" id="topic" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="e.g., Customer journey">
-          </div>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen">
+    <div class="container my-10 px-4 sm:px-8">
+        <!-- Header -->
+        <div class="text-center mb-12 animate-fade-in">
+            <h1 class="text-4xl font-bold text-indigo-900 mb-2">✨ Newsletter Generator</h1>
+            <p class="text-gray-600">Create engaging newsletters in seconds</p>
         </div>
 
-        <!-- Audience -->
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">Target Audience</label>
-          <div class="relative">
-            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">👥</span>
-            <input type="text" id="audience" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="e.g., Marketing Agency">
-          </div>
-        </div>
+        <!-- Formulaire -->
+        <div class="form-container bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <div class="grid gap-6 md:grid-cols-2">
+                <div class="input-group">
+                    <label for="topic">Sujet</label>
+                    <input type="text" id="topic" placeholder="e.g., Customer journey">
+                </div>
 
-        <!-- CTA -->
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">Call-to-Action</label>
-          <div class="relative">
-            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🎯</span>
-            <input type="text" id="cta" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="e.g., Book a call now">
-          </div>
-        </div>
+                <div class="input-group">
+                    <label for="audience">Audience cible</label>
+                    <input type="text" id="audience" placeholder="e.g., Marketing Agency">
+                </div>
 
-        <!-- Tone -->
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">Tone of Voice</label>
-          <div class="relative">
-            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🎭</span>
-            <select id="tone" class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white">
-              <option value="pro">Professional</option>
-              <option value="casual">Casual</option>
-              <option value="friendly">Friendly</option>
-            </select>
-          </div>
-        </div>
-      </div>
+                <div class="input-group">
+                    <label for="cta">Call-to-Action</label>
+                    <input type="text" id="cta" placeholder="e.g., Book a call now">
+                </div>
 
-      <!-- Generate Button -->
-      <button onclick="generateIdeas()" class="w-full mt-8 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 flex items-center justify-center space-x-2">
-        <span class="text-xl">✨</span>
-        <span>Generate Ideas</span>
-      </button>
-    </div>
-
-    <!-- Ideas Container -->
-    <div id="ideas-container"></div>
-    
-    <!-- Email Container -->
-    <div id="email-container" class="hidden mt-8">
-      <div class="bg-white rounded-2xl shadow-xl p-8">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-xl font-semibold text-indigo-900">📩 Your Newsletter</h3>
-          <button id="copy-btn" onclick="copyEmail()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition duration-300 flex items-center space-x-2">
-            <span>📋</span>
-            <span>Copy to Clipboard</span>
-          </button>
-        </div>
-        <div id="email-content" class="mt-4 p-6 bg-gray-50 rounded-xl"></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const WEBHOOKS = {
-      generate: 'https://n8n-e2tg.onrender.com/webhook/input-newsletter',
-      select: 'https://n8n-e2tg.onrender.com/webhook/select-idea-newsletter'
-    };
-
-    let storedData = {};
-
-    async function generateIdeas() {
-      const generateButton = event.target;
-      const originalButtonHtml = generateButton.innerHTML;
-      generateButton.disabled = true;
-      generateButton.innerHTML = '<span class="animate-spin">🔄</span> Generating...';
-
-      storedData = {
-        topic: document.getElementById('topic').value,
-        audience: document.getElementById('audience').value,
-        tone: document.getElementById('tone').value,
-        cta: document.getElementById('cta').value
-      };
-
-      try {
-        const response = await fetch(WEBHOOKS.generate, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(storedData)
-        });
-
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-        showIdeas(data[0]?.output || []);
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Error generating ideas. Please try again.');
-      } finally {
-        generateButton.disabled = false;
-        generateButton.innerHTML = originalButtonHtml;
-      }
-    }
-
-    function showIdeas(ideas) {
-      const container = document.getElementById('ideas-container');
-      
-      // Hide email container when showing new ideas
-      document.getElementById('email-container').classList.add('hidden');
-      
-      container.innerHTML = `
-        <div class="bg-white rounded-2xl shadow-xl p-8">
-          <h2 class="text-xl font-semibold text-indigo-900 mb-4">💡 Generated Ideas</h2>
-          <div class="space-y-4">
-            ${ideas.length ? '' : '<p class="text-gray-500">No ideas generated. Try again!</p>'}
-          </div>
-        </div>
-      `;
-
-      if (!ideas?.length) return;
-
-      const ideasContainer = container.querySelector('.space-y-4');
-      ideas.forEach((idea, index) => {
-        const btn = document.createElement('button');
-        btn.className = "w-full p-6 border border-gray-100 rounded-xl bg-gray-50 hover:bg-indigo-50 hover:border-indigo-100 transition duration-300 text-left";
-        btn.innerHTML = `
-          <div class="flex items-start space-x-4">
-            <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-semibold">
-              ${index + 1}
+                <div class="input-group">
+                    <label for="tone">Ton de voix</label>
+                    <select id="tone">
+                        <option value="pro">Professionnel</option>
+                        <option value="casual">Décontracté</option>
+                        <option value="friendly">Amical</option>
+                    </select>
+                </div>
             </div>
-            <div class="flex-1">
-              <h3 class="font-semibold text-gray-900 mb-1">${idea.title || 'Untitled'}</h3>
-              <p class="text-gray-600 text-sm">${idea.description || 'No description available'}</p>
+
+            <button id="generateBtn" class="generate-btn">✨ Générer des idées</button>
+        </div>
+
+        <!-- Conteneur des idées -->
+        <div id="ideas-container" class="space-y-4"></div>
+
+        <!-- Conteneur du résultat -->
+        <div id="email-container" class="hidden">
+            <div class="email-box">
+                <h3>📩 Votre Newsletter</h3>
+                <button id="copy-btn">📋 Copier</button>
+                <div id="email-content"></div>
             </div>
-          </div>
-        `;
-        btn.onclick = () => selectIdea(idea);
-        ideasContainer.appendChild(btn);
-      });
-    }
-
-    async function selectIdea(selectedIdea) {
-      const emailContainer = document.getElementById('email-container');
-      const emailContent = document.getElementById('email-content');
-      
-      emailContent.innerHTML = '<div class="flex justify-center py-8"><div class="animate-spin text-4xl">🔄</div></div>';
-      emailContainer.classList.remove('hidden');
-
-      try {
-        const response = await fetch(WEBHOOKS.select, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            selected: selectedIdea,
-            tone: storedData.tone,
-            audience: storedData.audience,
-            cta: storedData.cta
-          })
-        });
-
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-        
-        if (!data.html) throw new Error("No content received");
-
-        const processedHtml = data.html
-          .replace(/<p>/g, '<p class="mb-4 text-gray-700">')
-          .replace(/<h1>/g, '<h1 class="text-2xl font-bold text-indigo-900 mb-4">')
-          .replace(/<h2>/g, '<h2 class="text-xl font-semibold text-indigo-900 mb-3">')
-          .replace(/<h3>/g, '<h3 class="text-lg font-semibold text-indigo-900 mb-2">')
-          .replace(/<ul>/g, '<ul class="list-disc list-inside mb-4 text-gray-700">')
-          .replace(/<ol>/g, '<ol class="list-decimal list-inside mb-4 text-gray-700">')
-          .replace(/<li>/g, '<li class="mb-2">');
-
-        emailContent.innerHTML = processedHtml;
-        
-        // Smooth scroll to email content
-        emailContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } catch (error) {
-        console.error('Error:', error);
-        emailContent.innerHTML = `<div class="text-red-500">Failed to generate newsletter: ${error.message}</div>`;
-      }
-    }
-
-    async function copyEmail() {
-      const copyBtn = document.getElementById('copy-btn');
-      const originalText = copyBtn.innerHTML;
-      
-      try {
-        const emailText = document.getElementById('email-content').innerText;
-        await navigator.clipboard.writeText(emailText);
-        
-        copyBtn.innerHTML = '<span>✅</span><span>Copied!</span>';
-        copyBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
-        copyBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-        
-        setTimeout(() => {
-          copyBtn.innerHTML = originalText;
-          copyBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-          copyBtn.classList.add('bg-green-500', 'hover:bg-green-600');
-        }, 2000);
-      } catch (err) {
-        console.error("Copy failed:", err);
-        copyBtn.innerHTML = '<span>❌</span><span>Failed to copy</span>';
-        setTimeout(() => {
-          copyBtn.innerHTML = originalText;
-        }, 2000);
-      }
-    }
-  </script>
+        </div>
+    </div>
 </body>
 </html>
