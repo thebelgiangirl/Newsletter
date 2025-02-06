@@ -7,23 +7,26 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"></script>
   <style>
-    /* Ensure consistent width */
     .container-width {
       width: 100%;
-      max-width: 896px; /* equivalent to max-w-4xl */
+      max-width: 896px;
       margin-left: auto;
       margin-right: auto;
     }
     
-    /* Custom styles to override email content formatting */
+    /* Enhanced email content constraints */
     #email-content {
       font-family: inherit !important;
       width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: hidden !important;
     }
     #email-content * {
       max-width: 100% !important;
+      box-sizing: border-box !important;
       margin-left: 0 !important;
       margin-right: 0 !important;
+      overflow-wrap: break-word !important;
     }
     #email-content p {
       margin-bottom: 1rem !important;
@@ -249,7 +252,6 @@
                 throw new Error("Invalid response from server. No HTML content.");
             }
 
-            // Process the HTML content to maintain consistent formatting
             const processedHtml = data.html
                 .replace(/<p>/g, '<p class="mb-4 text-gray-700">')
                 .replace(/<h1>/g, '<h1 class="text-2xl font-bold text-indigo-900 mb-4">')
@@ -261,7 +263,6 @@
 
             emailContent.innerHTML = processedHtml;
             
-            // Smooth scroll to email content
             emailContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
         } catch (error) {
