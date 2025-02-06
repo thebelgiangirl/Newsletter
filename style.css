@@ -1,78 +1,157 @@
-/* Largeur de conteneur pour éviter qu'il ne rétrécisse */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f3f4f6;
+    padding: 2rem;
+}
+
 .container {
     width: 100%;
     max-width: 896px;
     margin: auto;
 }
 
-/* Formulaire */
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    color: #1e1b4b;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #6b7280;
+    font-size: 1.1rem;
+}
+
 .form-container {
-    width: 100%;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
 }
 
 .input-group {
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 1.5rem;
 }
 
 .input-group label {
-    font-size: 14px;
+    display: block;
+    font-size: 0.875rem;
     font-weight: 600;
     color: #374151;
-    margin-bottom: 5px;
+    margin-bottom: 0.5rem;
 }
 
-.input-group input, .input-group select {
+.input-group input,
+.input-group select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
 }
 
-/* Bouton de génération */
+.input-group input:focus,
+.input-group select:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
 .generate-btn {
     width: 100%;
     background: linear-gradient(to right, #4f46e5, #6366f1);
     color: white;
-    padding: 12px;
-    font-size: 18px;
-    font-weight: bold;
+    padding: 1rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    border: none;
     border-radius: 10px;
     cursor: pointer;
     transition: 0.3s;
-    margin-top: 20px;
 }
 
 .generate-btn:hover {
     background: linear-gradient(to right, #4338ca, #4f46e5);
 }
 
-/* Contenu généré */
-.email-box {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
+.generate-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
-.email-box h3 {
-    font-size: 18px;
-    font-weight: bold;
+.ideas-container {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.idea-button {
+    background: white;
+    border: 1px solid #e5e7eb;
+    padding: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    transition: 0.2s;
+}
+
+.idea-button:hover {
+    border-color: #4f46e5;
+    background: #f9fafb;
+}
+
+.email-box {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.email-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.email-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
     color: #1e1b4b;
 }
 
 #copy-btn {
     background: #10b981;
     color: white;
-    padding: 8px 12px;
-    font-size: 14px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
     border-radius: 6px;
     cursor: pointer;
+    transition: 0.2s;
 }
 
 #copy-btn:hover {
     background: #059669;
 }
 
+.hidden {
+    display: none;
+}
+
+#email-content {
+    line-height: 1.6;
+}
