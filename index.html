@@ -49,10 +49,7 @@ export default function NewsletterGenerator() {
       const response = await fetch('https://n8n-e2tg.onrender.com/webhook/select-idea-newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          selected: idea,
-          ...formData
-        })
+        body: JSON.stringify({ selected: idea, ...formData })
       });
       
       if (!response.ok) throw new Error('Failed to generate newsletter');
@@ -81,9 +78,6 @@ export default function NewsletterGenerator() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <span className="inline-block bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
-            ✨ Newsletter Generator Pro
-          </span>
           <h1 className="text-4xl font-bold text-indigo-900 mb-4">
             Create Engaging Newsletters
           </h1>
@@ -92,145 +86,28 @@ export default function NewsletterGenerator() {
           </p>
         </div>
 
-        {/* Main Form */}
+        {/* Form */}
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-8">
           <div className="grid gap-6 md:grid-cols-2 mb-8">
             {/* Topic Input */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Newsletter Topic
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={formData.topic}
-                  onChange={(e) => setFormData(prev => ({...prev, topic: e.target.value}))}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="e.g., Digital Marketing Trends"
-                  required
-                />
-                <span className="absolute left-3 top-3 text-gray-400">📝</span>
-              </div>
-            </div>
-
-            {/* Audience Input */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Target Audience
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={formData.audience}
-                  onChange={(e) => setFormData(prev => ({...prev, audience: e.target.value}))}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="e.g., Small Business Owners"
-                  required
-                />
-                <span className="absolute left-3 top-3 text-gray-400">👥</span>
-              </div>
-            </div>
-
-            {/* CTA Input */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Call-to-Action
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={formData.cta}
-                  onChange={(e) => setFormData(prev => ({...prev, cta: e.target.value}))}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="e.g., Book a consultation"
-                  required
-                />
-                <span className="absolute left-3 top-3 text-gray-400">🎯</span>
-              </div>
-            </div>
-
-            {/* Tone Selector */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Tone of Voice
-              </label>
-              <div className="relative">
-                <select
-                  value={formData.tone}
-                  onChange={(e) => setFormData(prev => ({...prev, tone: e.target.value}))}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none"
-                  required
-                >
-                  <option value="">Select a tone...</option>
-                  <option value="professional">Professional</option>
-                  <option value="casual">Casual & Friendly</option>
-                  <option value="enthusiastic">Enthusiastic</option>
-                  <option value="authoritative">Authoritative</option>
-                </select>
-                <span className="absolute left-3 top-3 text-gray-400">🎭</span>
-                <ChevronDown className="absolute right-3 top-3 text-gray-400" size={20} />
-              </div>
-            </div>
-          </div>
-
-          {/* Advanced Options */}
-          <div className="border-t pt-6">
-            <button
-              type="button"
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center space-x-2"
-            >
-              <Settings size={16} />
-              <span>Advanced Options</span>
-              <ChevronDown
-                size={16}
-                className={`transform transition-transform ${showAdvanced ? 'rotate-180' : ''}`}
+              <label className="text-sm font-medium text-gray-700">Newsletter Topic</label>
+              <input
+                type="text"
+                value={formData.topic}
+                onChange={(e) => setFormData(prev => ({ ...prev, topic: e.target.value }))}
+                className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500"
+                placeholder="e.g., Digital Marketing Trends"
+                required
               />
-            </button>
-
-            {showAdvanced && (
-              <div className="mt-4 grid gap-6 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">
-                    Newsletter Length
-                  </label>
-                  <select
-                    value={formData.length}
-                    onChange={(e) => setFormData(prev => ({...prev, length: e.target.value}))}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  >
-                    <option value="short">Short (300-400 words)</option>
-                    <option value="medium">Medium (500-700 words)</option>
-                    <option value="long">Long (800-1000 words)</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">
-                    Content Style
-                  </label>
-                  <select
-                    value={formData.style}
-                    onChange={(e) => setFormData(prev => ({...prev, style: e.target.value}))}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  >
-                    <option value="informative">Informative & Educational</option>
-                    <option value="storytelling">Storytelling & Narrative</option>
-                    <option value="data-driven">Data-Driven & Analytical</option>
-                    <option value="conversational">Conversational & Engaging</option>
-                  </select>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
 
-          {/* Generate Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-8 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 flex items-center justify-center space-x-2"
+            className="w-full mt-8 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg"
           >
-            <span className="text-xl">✨</span>
             <span>Generate Newsletter Ideas</span>
           </button>
 
@@ -242,32 +119,18 @@ export default function NewsletterGenerator() {
           )}
         </form>
 
-        {/* Ideas Container */}
+        {/* Ideas */}
         {ideas.length > 0 && (
           <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-8">
-            <h2 className="text-xl font-semibold text-indigo-900 mb-6">
-              💡 Generated Ideas
-            </h2>
+            <h2 className="text-xl font-semibold text-indigo-900 mb-6">💡 Generated Ideas</h2>
             <div className="space-y-4">
               {ideas.map((idea, index) => (
                 <button
                   key={index}
                   onClick={() => selectIdea(idea)}
-                  className="w-full p-6 border border-gray-100 rounded-xl bg-gray-50 hover:bg-indigo-50 hover:border-indigo-100 transition duration-300 text-left"
+                  className="w-full p-6 border rounded-xl bg-gray-50 hover:bg-indigo-50 transition duration-300 text-left"
                 >
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-semibold">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">
-                        {idea.title || 'Untitled Idea'}
-                      </h3>
-                      <p className="text-gray-600 text-sm">
-                        {idea.description || 'No description available'}
-                      </p>
-                    </div>
-                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-1">{idea.title || 'Untitled Idea'}</h3>
                 </button>
               ))}
             </div>
@@ -277,59 +140,11 @@ export default function NewsletterGenerator() {
         {/* Newsletter Preview */}
         {newsletter && (
           <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-indigo-900">
-                📩 Your Newsletter
-              </h2>
-              <div className="flex space-x-4 mt-4 sm:mt-0">
-                <button
-                  onClick={() => setShowPreview(true)}
-                  className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 rounded-lg transition duration-300 flex items-center space-x-2"
-                >
-                  <Eye size={16} />
-                  <span>Preview</span>
-                </button>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(newsletter);
-                    // Add copy confirmation feedback here
-                  }}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition duration-300 flex items-center space-x-2"
-                >
-                  <Copy size={16} />
-                  <span>Copy</span>
-                </button>
-              </div>
-            </div>
+            <h2 className="text-xl font-semibold text-indigo-900">📩 Your Newsletter</h2>
             <div
               className="prose max-w-none p-6 bg-gray-50 rounded-xl"
               dangerouslySetInnerHTML={{ __html: newsletter }}
             />
-          </div>
-        )}
-
-        {/* Preview Modal */}
-        {showPreview && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="text-xl font-semibold text-indigo-900">
-                  Newsletter Preview
-                </h3>
-                <button
-                  onClick={() => setShowPreview(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X size={24} />
-                </button>
-              </div>
-              <div className="p-6">
-                <div
-                  className="prose max-w-none"
-                  dangerouslySetInnerHTML={{ __html: newsletter }}
-                />
-              </div>
-            </div>
           </div>
         )}
       </div>
