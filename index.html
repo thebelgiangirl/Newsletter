@@ -1,1 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="script.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen">
+    <div class="container my-10 px-4 sm:px-8">
+        <!-- Header -->
+        <div class="text-center mb-12 animate-fade-in">
+            <h1 class="text-4xl font-bold text-indigo-900 mb-2">✨ Newsletter Generator</h1>
+            <p class="text-gray-600">Create engaging newsletters in seconds</p>
+        </div>
+
+        <!-- Formulaire -->
+        <div class="form-container bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <div class="grid gap-6 md:grid-cols-2">
+                <div class="input-group">
+                    <label for="topic">Sujet</label>
+                    <input type="text" id="topic" placeholder="e.g., Customer journey">
+                </div>
+
+                <div class="input-group">
+                    <label for="audience">Audience cible</label>
+                    <input type="text" id="audience" placeholder="e.g., Marketing Agency">
+                </div>
+
+                <div class="input-group">
+                    <label for="cta">Call-to-Action</label>
+                    <input type="text" id="cta" placeholder="e.g., Book a call now">
+                </div>
+
+                <div class="input-group">
+                    <label for="tone">Ton de voix</label>
+                    <select id="tone">
+                        <option value="pro">Professionnel</option>
+                        <option value="casual">Décontracté</option>
+                        <option value="friendly">Amical</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="generateBtn" class="generate-btn">✨ Générer des idées</button>
+        </div>
+
+        <!-- Conteneur des idées -->
+        <div id="ideas-container" class="space-y-4"></div>
+
+        <!-- Conteneur du résultat -->
+        <div id="email-container" class="hidden">
+            <div class="email-box">
+                <h3>📩 Votre Newsletter</h3>
+                <button id="copy-btn">📋 Copier</button>
+                <div id="email-content"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
 
