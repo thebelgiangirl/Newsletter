@@ -13,7 +13,7 @@
       margin-left: auto;
       margin-right: auto;
     }
-    
+
     /* Enhanced email content constraints */
     #email-content {
       font-family: inherit !important;
@@ -138,5 +138,69 @@
           <button 
             id="copy-btn" 
             onclick="copyEmail()" 
-            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition duration-300 flex items-center space-x-2">
-            <span>
+            class="text-sm bg-indigo-500 text-white px-4 py-2 rounded-lg">Copy HTML</button>
+        </div>
+        <div id="email-content" class="text-gray-900 text-sm"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const WEBHOOKS = {
+      generate: 'https://newsletter-generator.maryamhmdaoui.workers.dev/'
+    };
+
+    async function generateIdeas() {
+      const generateButton = event.target;
+      generateButton.disabled = true;
+      generateButton.innerHTML = '<span class="animate-spin">🔄</span> Generating...';
+
+      const storedData = {
+        topic: document.getElementById('topic').value,
+        audience: document.getElementById('audience').value,
+        tone: document.getElementById('tone').value,
+        cta: document.getElementById('cta').value
+      };
+
+      try {
+        const response = await fetch(WEBHOOKS.generate, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(storedData)
+        });
+
+        if (!response.ok) {
+          if (response.status === 429) {
+            const data = await response.json();
+            alert(data.message || 'You have reached the limit of uses. Please contact us for full access.');
+            return;
+          }
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const ideas = data[0]?.output || [];
+        showIdeas(ideas);
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error generating ideas. Please try again.');
+      } finally {
+        generateButton.disabled = false;
+        generateButton.innerHTML = '<span class="text-xl">✨</span><span>Generate Ideas</span>';
+      }
+    }
+
+    function showIdeas(ideas) {
+      const container = document.getElementById('ideas-container');
+      container.innerHTML = '';
+
+      ideas.forEach(idea => {
+        const ideaEl = document.createElement('div');
+        ideaEl.classList.add('bg-gray-100', 'p-4', 'rounded-lg', 'shadow-md');
+        ideaEl.innerHTML = `<p>${idea}</p>`;
+        container.appendChild(ideaEl);
+      });
+    }
+  </script>
+</body>
+</html>
