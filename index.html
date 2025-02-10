@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Newsletter Generator</title>
+  <!-- Proper Tailwind CSS loading -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"></script>
+  <!-- Proper animate.css loading -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  
   <style>
     .container-width {
       width: 100%;
@@ -98,11 +101,11 @@
               type="text" 
               id="cta" 
               class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-              placeholder="e.g., Book a call now">
+              placeholder="e.g., Schedule a demo">
           </div>
         </div>
 
-        <!-- Tone Selector -->
+        <!-- Tone of Voice Dropdown -->
         <div class="space-y-2">
           <label class="block text-sm font-medium text-gray-700">Tone of Voice</label>
           <div class="relative">
@@ -150,8 +153,8 @@
 
   <script>
     const WEBHOOKS = {
-        generate: 'https://newsletter-generator.maryamhmdaoui.workers.dev/generate',
-        select: 'https://newsletter-generator.maryamhmdaoui.workers.dev/select'
+        generate: 'https://your-worker.maryam.workers.dev/generate',
+        select: 'https://your-worker.maryam.workers.dev/select'
     };
 
     let storedData = {};
@@ -180,11 +183,17 @@
             }
 
             const data = await response.json();
+            
+            // Ensure data is an array and has content
+            if (!Array.isArray(data) || data.length === 0) {
+                throw new Error('Invalid response format: expected an array but received ' + typeof data);
+            }
+
             const ideas = data[0]?.output || [];
             showIdeas(ideas);
         } catch (error) {
             console.error('Error:', error);
-            alert('Error generating ideas. Please try again.');
+            alert('Error generating ideas. Please try again.' + (error.message ? '\n' + error.message : ''));
         } finally {
             generateButton.disabled = false;
             generateButton.innerHTML = '<span class="text-xl">✨</span><span>Generate Ideas</span>';
@@ -202,7 +211,10 @@
             </div>
         `;
         
-        if (!ideas?.length) return;
+        if (!Array.isArray(ideas) || !ideas.length) {
+            console.error('Invalid ideas format:', ideas);
+            return;
+        }
 
         const ideasContainer = container.querySelector('.space-y-4');
         ideas.forEach((idea, index) => {
@@ -262,9 +274,7 @@
                 .replace(/<li>/g, '<li class="mb-2">');
 
             emailContent.innerHTML = processedHtml;
-            
             emailContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
         } catch (error) {
             console.error('Error:', error);
             emailContent.innerHTML = `<div class="text-red-500">Failed to generate newsletter: ${error.message}</div>`;
