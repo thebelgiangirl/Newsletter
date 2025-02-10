@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" href="data:,">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Newsletter Generator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"></script>
   <style>
     .container-width {
@@ -149,6 +150,8 @@
   </div>
 
   <script>
+    console.log("Calling webhook:", WEBHOOKS.generate, "with data:", storedData);
+
     const WEBHOOKS = {
         generate: 'https://newsletter-generator.maryamhmdaoui.workers.dev/',
         select: 'https://newsletter-generator.maryamhmdaoui.workers.dev/'
