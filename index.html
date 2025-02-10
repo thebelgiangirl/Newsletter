@@ -4,13 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Newsletter Generator</title>
-  <style>
-    /* Include Tailwind CSS directly (for production, you should build it with PostCSS) */
-    @import url('https://cdn.tailwindcss.com');
-  </style>
-  <!-- Proper animate.css loading -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"></script>
   <style>
     .container-width {
       width: 100%;
@@ -103,18 +98,18 @@
               type="text" 
               id="cta" 
               class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-              placeholder="e.g., Schedule a demo">
+              placeholder="e.g., Book a call now">
           </div>
         </div>
 
-        <!-- Tone of Voice Dropdown -->
+        <!-- Tone Selector -->
         <div class="space-y-2">
           <label class="block text-sm font-medium text-gray-700">Tone of Voice</label>
           <div class="relative">
             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">🎭</span>
             <select 
               id="tone" 
-              class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition appearance-none bg-white>
+              class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition appearance-none bg-white">
               <option value="pro">Professional</option>
               <option value="casual">Casual</option>
               <option value="friendly">Friendly</option>
@@ -155,8 +150,8 @@
 
   <script>
     const WEBHOOKS = {
-        generate: 'https://your-worker.maryam.workers.dev/',
-        select: 'https://your-worker.maryam.workers.dev/'
+        generate: 'https://n8n-e2tg.onrender.com/webhook/input-newsletter',
+        select: 'https://n8n-e2tg.onrender.com/webhook/select-idea-newsletter'
     };
 
     let storedData = {};
@@ -174,17 +169,10 @@
         };
 
         try {
-            // Set headers for CORS
-            const headers = {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest' // For compatibility
-            };
-
             const response = await fetch(WEBHOOKS.generate, {
                 method: 'POST',
-                headers: headers,
-                body: JSON.stringify(storedData),
-                mode: 'cors' // Explicitly set mode to cors
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(storedData)
             });
 
             if (!response.ok) {
@@ -192,18 +180,11 @@
             }
 
             const data = await response.json();
-
-            
-            // Ensure data is an array and has content
-            if (!Array.isArray(data) || data.length === 0) {
-                throw new Error('Invalid response format: expected an array but received ' + typeof data);
-            }
-
             const ideas = data[0]?.output || [];
             showIdeas(ideas);
         } catch (error) {
             console.error('Error:', error);
-            alert('Error generating ideas. Please try again.' + (error.message ? '\n' + error.message : ''));
+            alert('Error generating ideas. Please try again.');
         } finally {
             generateButton.disabled = false;
             generateButton.innerHTML = '<span class="text-xl">✨</span><span>Generate Ideas</span>';
@@ -221,10 +202,7 @@
             </div>
         `;
         
-        if (!Array.isArray(ideas) || !ideas.length) {
-            console.error('Invalid ideas format:', ideas);
-            return;
-        }
+        if (!ideas?.length) return;
 
         const ideasContainer = container.querySelector('.space-y-4');
         ideas.forEach((idea, index) => {
@@ -284,7 +262,9 @@
                 .replace(/<li>/g, '<li class="mb-2">');
 
             emailContent.innerHTML = processedHtml;
+            
             emailContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
         } catch (error) {
             console.error('Error:', error);
             emailContent.innerHTML = `<div class="text-red-500">Failed to generate newsletter: ${error.message}</div>`;
@@ -318,3 +298,4 @@
     }
   </script>
 </body>
+</html>
