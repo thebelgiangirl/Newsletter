@@ -165,17 +165,18 @@
         generateButton.innerHTML = '<span class="animate-spin">🔄</span> Generating...';
 
         storedData = {
-            topic: document.getElementById('topic').value,
-            audience: document.getElementById('audience').value,
-            tone: document.getElementById('tone').value,
-            cta: document.getElementById('cta').value
+            topic: document.getElementById('topic').value.trim(),
+            audience: document.getElementById('audience').value.trim(),
+            tone: document.getElementById('tone').value.trim(),
+            cta: document.getElementById('cta').value.trim()
         };
+        console.log("📤 Sending data to webhook:", storedData);
 
         try {
             const response = await fetch(WEBHOOKS.generate, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(storedData)
+                body: JSON.stringify(storedData || {})
             });
 
             if (!response.ok) {
@@ -192,8 +193,14 @@
 
             showIdeas(ideas);
         } catch (error) {
-            console.error('Error:', error);
-            alert('Error generating ideas. Please try again.');
+            console.error('❌ Error:', error);
+            if (error.response) {
+                const errorDetails = await error.response.text();
+                console.error("📩 Server Response:", errorDetails);
+                alert(`Error: ${errorDetails}`);
+            } else {
+                alert('Unknown error occurred. Check the console for details.');
+            }
         } finally {
             generateButton.disabled = false;
             generateButton.innerHTML = '<span class="text-xl">✨</span><span>Generate Ideas</span>';
