@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Newsletter Generator</title>
-  <!-- Proper Tailwind CSS loading -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Include Tailwind CSS directly (for production, you should build it with PostCSS) */
+    @import url('https://cdn.tailwindcss.com');
+  </style>
   <!-- Proper animate.css loading -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
   
@@ -112,7 +114,7 @@
             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">🎭</span>
             <select 
               id="tone" 
-              class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition appearance-none bg-white">
+              class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition appearance-none bg-white>
               <option value="pro">Professional</option>
               <option value="casual">Casual</option>
               <option value="friendly">Friendly</option>
@@ -172,10 +174,17 @@
         };
 
         try {
+            // Set headers for CORS
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest' // For compatibility
+            };
+
             const response = await fetch(WEBHOOKS.generate, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(storedData)
+                headers: headers,
+                body: JSON.stringify(storedData),
+                mode: 'cors' // Explicitly set mode to cors
             });
 
             if (!response.ok) {
@@ -183,6 +192,7 @@
             }
 
             const data = await response.json();
+
             
             // Ensure data is an array and has content
             if (!Array.isArray(data) || data.length === 0) {
@@ -308,4 +318,3 @@
     }
   </script>
 </body>
-</html>
