@@ -13,7 +13,7 @@
       margin-left: auto;
       margin-right: auto;
     }
-
+    
     /* Enhanced email content constraints */
     #email-content {
       font-family: inherit !important;
@@ -138,68 +138,163 @@
           <button 
             id="copy-btn" 
             onclick="copyEmail()" 
-            class="text-sm bg-indigo-500 text-white px-4 py-2 rounded-lg">Copy HTML</button>
+            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition duration-300 flex items-center space-x-2">
+            <span>📋</span>
+            <span>Copy to Clipboard</span>
+          </button>
         </div>
-        <div id="email-content" class="text-gray-900 text-sm"></div>
+        <div id="email-content" class="mt-4 p-6 bg-gray-50 rounded-xl text-base leading-relaxed w-full"></div>
       </div>
     </div>
   </div>
 
   <script>
     const WEBHOOKS = {
-      generate: 'https://newsletter-generator.maryamhmdaoui.workers.dev/'
+        generate: 'https://newsletter-generator.maryamhmdaoui.workers.dev/generate',
+        select: 'https://newsletter-generator.maryamhmdaoui.workers.dev/select'
     };
 
+    let storedData = {};
+
     async function generateIdeas() {
-      const generateButton = event.target;
-      generateButton.disabled = true;
-      generateButton.innerHTML = '<span class="animate-spin">🔄</span> Generating...';
+        const generateButton = event.target;
+        generateButton.disabled = true;
+        generateButton.innerHTML = '<span class="animate-spin">🔄</span> Generating...';
 
-      const storedData = {
-        topic: document.getElementById('topic').value,
-        audience: document.getElementById('audience').value,
-        tone: document.getElementById('tone').value,
-        cta: document.getElementById('cta').value
-      };
+        storedData = {
+            topic: document.getElementById('topic').value,
+            audience: document.getElementById('audience').value,
+            tone: document.getElementById('tone').value,
+            cta: document.getElementById('cta').value
+        };
 
-      try {
-        const response = await fetch(WEBHOOKS.generate, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(storedData)
-        });
+        try {
+            const response = await fetch(WEBHOOKS.generate, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(storedData)
+            });
 
-        if (!response.ok) {
-          if (response.status === 429) {
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            }
+
             const data = await response.json();
-            alert(data.message || 'You have reached the limit of uses. Please contact us for full access.');
-            return;
-          }
-          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            const ideas = data[0]?.output || [];
+            showIdeas(ideas);
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error generating ideas. Please try again.');
+        } finally {
+            generateButton.disabled = false;
+            generateButton.innerHTML = '<span class="text-xl">✨</span><span>Generate Ideas</span>';
         }
-
-        const data = await response.json();
-        const ideas = data[0]?.output || [];
-        showIdeas(ideas);
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Error generating ideas. Please try again.');
-      } finally {
-        generateButton.disabled = false;
-        generateButton.innerHTML = '<span class="text-xl">✨</span><span>Generate Ideas</span>';
-      }
     }
 
     function showIdeas(ideas) {
-      const container = document.getElementById('ideas-container');
-      container.innerHTML = '';
+        const container = document.getElementById('ideas-container');
+        container.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-xl p-8 w-full">
+                <h2 class="text-xl font-semibold text-indigo-900 mb-4">💡 Generated Ideas</h2>
+                <div class="space-y-4">
+                    ${ideas.length ? '' : '<p class="text-gray-500">No ideas generated. Try again!</p>'}
+                </div>
+            </div>
+        `;
+        
+        if (!ideas?.length) return;
 
-      ideas.forEach(idea => {
-        const ideaEl = document.createElement('div');
-        ideaEl.classList.add('bg-gray-100', 'p-4', 'rounded-lg', 'shadow-md');
-        ideaEl.innerHTML = `<p>${idea}</p>`;
-        container.appendChild(ideaEl);
-      });
+        const ideasContainer = container.querySelector('.space-y-4');
+        ideas.forEach((idea, index) => {
+            const btn = document.createElement('button');
+            btn.className = "w-full p-6 border border-gray-100 rounded-xl bg-gray-50 hover:bg-indigo-50 hover:border-indigo-100 transition duration-300 text-left";
+            btn.innerHTML = `
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-semibold">
+                        ${index + 1}
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-gray-900 mb-1">${idea.title || 'Untitled Idea'}</h3>
+                        <p class="text-gray-600 text-sm">${idea.description || 'No description available'}</p>
+                    </div>
+                </div>
+            `;
+            btn.onclick = () => selectIdea(idea);
+            ideasContainer.appendChild(btn);
+        });
+    }
+
+    async function selectIdea(selectedIdea) {
+        const emailContainer = document.getElementById('email-container');
+        const emailContent = document.getElementById('email-content');
+        
+        emailContent.innerHTML = '<div class="flex justify-center py-8"><div class="animate-spin text-4xl">🔄</div></div>';
+        emailContainer.classList.remove('hidden');
+
+        try {
+            const response = await fetch(WEBHOOKS.select, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    selected: selectedIdea,
+                    tone: storedData.tone,
+                    audience: storedData.audience,
+                    cta: storedData.cta
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            if (!data.html) {
+                throw new Error("Invalid response from server. No HTML content.");
+            }
+
+            const processedHtml = data.html
+                .replace(/<p>/g, '<p class="mb-4 text-gray-700">')
+                .replace(/<h1>/g, '<h1 class="text-2xl font-bold text-indigo-900 mb-4">')
+                .replace(/<h2>/g, '<h2 class="text-xl font-semibold text-indigo-900 mb-3">')
+                .replace(/<h3>/g, '<h3 class="text-lg font-semibold text-indigo-900 mb-2">')
+                .replace(/<ul>/g, '<ul class="list-disc list-inside mb-4 text-gray-700">')
+                .replace(/<ol>/g, '<ol class="list-decimal list-inside mb-4 text-gray-700">')
+                .replace(/<li>/g, '<li class="mb-2">');
+
+            emailContent.innerHTML = processedHtml;
+            
+            emailContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        } catch (error) {
+            console.error('Error:', error);
+            emailContent.innerHTML = `<div class="text-red-500">Failed to generate newsletter: ${error.message}</div>`;
+        }
+    }
+
+    async function copyEmail() {
+        const copyBtn = document.getElementById('copy-btn');
+        const originalText = copyBtn.innerHTML;
+        
+        try {
+            const emailText = document.getElementById('email-content').innerText;
+            await navigator.clipboard.writeText(emailText);
+            
+            copyBtn.innerHTML = '<span>✅</span><span>Copied!</span>';
+            copyBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+            copyBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+                copyBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                copyBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+            }, 2000);
+        } catch (err) {
+            console.error("Copy failed:", err);
+            copyBtn.innerHTML = '<span>❌</span><span>Failed to copy</span>';
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+            }, 2000);
+        }
     }
   </script>
 </body>
