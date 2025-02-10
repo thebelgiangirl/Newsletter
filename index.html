@@ -176,7 +176,7 @@
             const response = await fetch(WEBHOOKS.generate, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(storedData || {})
+                body: JSON.stringify(storedData)
             });
 
             if (!response.ok) {
