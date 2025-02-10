@@ -159,8 +159,8 @@
     let storedData = {};
     console.log("Calling webhook:", WEBHOOKS.generate, "with data:", storedData);
 
-    async function generateIdeas() {
-        const generateButton = event.target;
+    async function generateIdeas(event) {
+        const generateButton = event ? event.target : document.querySelector('button[onclick="generateIdeas()"]');
         generateButton.disabled = true;
         generateButton.innerHTML = '<span class="animate-spin">🔄</span> Generating...';
 
@@ -183,7 +183,13 @@
             }
 
             const data = await response.json();
+
+            if (!data || !Array.isArray(data) || !data[0]?.output) {
+                throw new Error("Invalid response from server.");
+            }
+
             const ideas = data[0]?.output || [];
+
             showIdeas(ideas);
         } catch (error) {
             console.error('Error:', error);
